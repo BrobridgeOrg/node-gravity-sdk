@@ -53,6 +53,7 @@ nativeModule.register({
 	'SubscriberSetSnapshotHandler': [ 'void', [ 'pointer', 'pointer' ] ],
 	'SubscriberRegister': [ utils.ErrorPtr, [ 'pointer', ref.types.CString, ref.types.CString, ref.types.CString, ref.types.CString ] ],
 	'SubscriberStart': [ 'void', [ 'pointer' ] ],
+	'SubscriberStop': [ 'void', [ 'pointer' ] ],
 	'SubscriberGetPipelineCount': [ ref.types.int, [ 'pointer' ] ],
 	'SubscriberAddAllPipelines': [ utils.ErrorPtr, [ 'pointer' ] ],
 	'SubscriberSubscribeToPipelines': [ utils.ErrorPtr, [ 'pointer', Uint64Array ] ],
@@ -154,14 +155,18 @@ module.exports = class Subscriber extends events.EventEmitter {
 				if (!ref.isNull(res)) {
 					return reject(res.deref());
 				}
-			});
 
-			resolve();
+				resolve();
+			});
 		});
 	}
 
 	start() {
 		nativeModule.getLibrary().SubscriberStart(this.instance);
+	}
+
+	stop() {
+		nativeModule.getLibrary().SubscriberStop(this.instance);
 	}
 
 	getPipelineCount() {

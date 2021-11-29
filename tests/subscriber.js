@@ -1,8 +1,13 @@
 const Gravity = require('../');
 
-process.on('SIGINT', () => process.exit(1));
-
 let client = new Gravity.Client();
+let subscriber;
+
+process.on('SIGINT', async () => {
+	await subscriber.stop();
+	await client.disconnect();
+	process.exit(1);
+});
 
 (async () => {
 
@@ -16,7 +21,7 @@ let client = new Gravity.Client();
 
 	console.log('Initializing Subscriber...');
 
-	let subscriber = client.createSubscriber({
+	subscriber = client.createSubscriber({
 		verbose: true,
 		initialLoad: {
 			enabled: true,

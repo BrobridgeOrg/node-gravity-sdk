@@ -24,6 +24,7 @@ nativeModule.register({
 	'NewClientOptions': [ ClientOptionsPtr, [] ],
 	'NewClient': [ 'pointer', [] ],
 	'ClientConnect': [ utils.ErrorPtr, [ 'pointer', ref.types.CString, ClientOptionsPtr ] ],
+	'ClientDisconnect': [ 'void', [ 'pointer'] ],
 	'ClientSetDisconnectHandler': [ 'void', [ 'pointer', 'pointer' ] ],
 	'ClientSetReconnectHandler': [ 'void', [ 'pointer', 'pointer' ] ],
 });
@@ -76,8 +77,13 @@ module.exports = class Client extends events.EventEmitter {
 	}
 
 	disconnect() {
-		clearTimeout(this.loop);
-		this.loop = null;
+		return new Promise((resolve, reject) => {
+			nativeModule.getLibrary().ClientDisconnect.async(this.instance, (err, res) => {
+				clearTimeout(this.loop);
+				this.loop = null;
+				resolve();
+			});
+		});
 	}
 
 	createSubscriber(opts = {}) {
