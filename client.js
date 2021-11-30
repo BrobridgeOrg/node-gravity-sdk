@@ -66,7 +66,7 @@ module.exports = class Client extends events.EventEmitter {
 
 			gravity.ClientConnect.async(this.instance, host, cOpts.ref(), (err, res) => {
 				if (!ref.isNull(res)) {
-					return reject(res.deref());
+					return reject(new Error(res.deref().message));
 				}
 
 				this.loop = setInterval(() => {}, 10000);

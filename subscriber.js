@@ -138,7 +138,7 @@ module.exports = class Subscriber extends events.EventEmitter {
 		return new Promise((resolve, reject) => {
 			nativeModule.getLibrary().SubscriberConnect(this.instance, '0.0.0.0:32803', (err, res) => {
 				if (!ref.isNull(res)) {
-					return reject(res.deref());
+					return reject(new Error(res.deref().message));
 				}
 
 				resolve();
@@ -153,7 +153,8 @@ module.exports = class Subscriber extends events.EventEmitter {
 			// Register
 			let err = nativeModule.getLibrary().SubscriberRegister.async(this.instance, subscriberType, componentName, subscriberID, subscriberName, (err, res) => {
 				if (!ref.isNull(res)) {
-					return reject(res.deref());
+					console.log(new Error(res.deref().message));
+					return reject(new Error(res.deref().message));
 				}
 
 				resolve();
@@ -182,7 +183,7 @@ module.exports = class Subscriber extends events.EventEmitter {
 		return new Promise((resolve, reject) => {
 			nativeModule.getLibrary().SubscriberAddAllPipelines.async(this.instance, (err, res) => {
 				if (!ref.isNull(res)) {
-					return reject(res.deref());
+					return reject(new Error(res.deref().message));
 				}
 
 				resolve();
@@ -196,7 +197,7 @@ module.exports = class Subscriber extends events.EventEmitter {
 			let arr = new Uint64Array(pipelines);
 			nativeModule.getLibrary().SubscriberSubscribeToPipelines.async(this.instance, arr, (err, res) => {
 				if (!ref.isNull(res)) {
-					return reject(res.deref());
+					return reject(new Error(res.deref().message));
 				}
 
 				resolve();
@@ -221,7 +222,7 @@ module.exports = class Subscriber extends events.EventEmitter {
 				let arr = new StringArray(tables);
 				gravity.SubscriberSubscribeToCollection.async(this.instance, collectionName, arr, tables.length, (err, res) => {
 					if (!ref.isNull(res)) {
-						return reject(res.deref());
+						return reject(new Error(res.deref().message));
 					}
 
 					resolve();
