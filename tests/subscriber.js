@@ -70,4 +70,9 @@ process.on('SIGINT', async () => {
 
 	console.log('Starting subscriber...');
 	subscriber.start();
+
+	setTimeout(async () => {
+		await subscriber.stop();
+		await client.disconnect();
+	}, 3000);
 })();

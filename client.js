@@ -40,18 +40,18 @@ module.exports = class Client extends events.EventEmitter {
 		this.loop = null;
 
 		// Disconnect handler
-		let disconnectHandler = ffi.Callback('void', [], () => {
+		this.disconnectHandler = ffi.Callback('void', [], () => {
 			this.emit('disconnect');
 		});
 
-		gravity.ClientSetDisconnectHandler(this.instance, disconnectHandler);
+		gravity.ClientSetDisconnectHandler(this.instance, this.disconnectHandler);
 
 		// Reconnect handler
-		let reconnectHandler = ffi.Callback('void', [], () => {
+		this.reconnectHandler = ffi.Callback('void', [], () => {
 			this.emit('reconnect');
 		});
 
-		gravity.ClientSetReconnectHandler(this.instance, reconnectHandler);
+		gravity.ClientSetReconnectHandler(this.instance, this.reconnectHandler);
 	}
 
 	connect(host, opts = {}) {
