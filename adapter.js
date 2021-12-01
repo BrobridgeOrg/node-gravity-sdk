@@ -10,6 +10,8 @@ const AdapterOptions = StructType({
 	endpoint: ref.types.CString,
 	domain: ref.types.CString,
 	batchSize: ref.types.int,
+	appID: ref.types.CString,
+	accessKey: ref.types.CString,
 	verbose: ref.types.bool,
 });
 

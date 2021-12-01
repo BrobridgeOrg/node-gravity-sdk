@@ -22,6 +22,8 @@ const SubscriberOptions = StructType({
 	workerCount: ref.types.int,
 	bufferSize: ref.types.int,
 	chunkSize: ref.types.int,
+	appID: ref.types.CString,
+	accessKey: ref.types.CString,
 	verbose: ref.types.bool,
 	initialLoad: SubscriberInitialLoadOptions,
 });
