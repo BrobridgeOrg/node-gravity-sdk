@@ -10,7 +10,7 @@ module.exports = class Message extends events.EventEmitter {
 		this.subject = '';
 		this.time = 0;
 		this.timeNanos = 0;
-		this.product = '';
+		this.product = null;
 		this.data = null;
 	}
 

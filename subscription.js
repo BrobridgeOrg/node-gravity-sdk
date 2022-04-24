@@ -51,7 +51,7 @@ module.exports = class Subscription extends events.EventEmitter {
 
 							// Create a new message
 							let message = new Message()
-							message.product = self.name;
+							message.product = self.product;
 							message.subject = m.subject;
 							message.msg = m;
 							message.seq = m.seq;
