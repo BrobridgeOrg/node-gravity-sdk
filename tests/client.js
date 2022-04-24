@@ -12,24 +12,19 @@ const client = new gravity.Client();
 
 	// Subscribe
 	let product = await client.getProduct('accounts');
-	product.on('event', (m) => {
+	let sub = await product.subscribe();
+	sub.on('event', (m) => {
 		console.log(m.data.record);
 
 		setTimeout(() => {
 			m.ack();
 		}, 1000);
 	});
-	product.subscribe();
 
-	/*
-	let sub = await product.subscribe();
+	setTimeout(async () => {
+		console.log('Attempt to unsubscribe');
+		await sub.unsubscribe()
+		console.log('Unsubscribed');
+	}, 1000);
 
-	for await (const m of sub) {
-		console.log(m.data.record);
-		setTimeout(() => {
-			m.ack();
-		}, 1000);
-		await m.wait()
-	}
-	*/
 })()
