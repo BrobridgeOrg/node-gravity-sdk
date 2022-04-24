@@ -12,8 +12,9 @@ const client = new gravity.Client();
 
 	// Subscribe
 	let product = await client.getProduct('accounts');
-	let sub = await product.subscribe();
+	let sub = await product.subscribe([], { seq: 110 });
 	sub.on('event', (m) => {
+		console.log(m.seq);
 		console.log(m.data.record);
 
 		setTimeout(() => {

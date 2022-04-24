@@ -16,7 +16,7 @@ module.exports = class Subscription extends events.EventEmitter {
 		this.subscriptions = {};
 	}
 
-	async _fetch(partition) {
+	async _fetch(partition, opts) {
 
 		let js = this.product.client.nc.jetstream()
 
@@ -30,12 +30,13 @@ module.exports = class Subscription extends events.EventEmitter {
 		let subject = util.format(productEventSubject, this.product.client.getDomain(), this.product.name, partition);
 
 		// Preparing subscription options
-		let opts = nats.consumerOpts();
-		opts.ackAll();
-		opts.deliverTo(nats.createInbox());
+		let cOpts = nats.consumerOpts();
+		cOpts.ackAll();
+		cOpts.deliverTo(nats.createInbox());
+		cOpts.startSequence(opts.seq || 1);
 
 		// Starting subscribe to data product
-		let sub = await js.subscribe(subject, opts);
+		let sub = await js.subscribe(subject, cOpts);
 
 		let self = this;
 
@@ -90,8 +91,10 @@ module.exports = class Subscription extends events.EventEmitter {
 		};
 	}
 
-	async subscribe(partition) {
-		let sub = await this._fetch(partition);
+	async subscribe(partition, opts) {
+
+		let _opts = opts || {};
+		let sub = await this._fetch(partition, _opts);
 		this.subscriptions[partition] = sub;
 		for await (const m of sub) {
 			this.emit('event', m);

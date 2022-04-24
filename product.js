@@ -14,7 +14,7 @@ module.exports = class Product extends events.EventEmitter {
 		this.name = name;
 	}
 
-	async subscribe(partitions) {
+	async subscribe(partitions, opts) {
 
 		if (!partitions) {
 			partitions = [];
@@ -24,14 +24,14 @@ module.exports = class Product extends events.EventEmitter {
 
 		if (partitions.length == 0) {
 			// Subscribe to all partitions
-			sub.subscribe(0);
+			sub.subscribe(0, opts || {});
 			return sub;
 		}
 
 		// Subscribe to specific partitions we need
 		for (let index in partitions) {
 			let partition = partitions[index];
-			sub.subscribe(partition);
+			sub.subscribe(partition, opts || {});
 		}
 
 		return sub;
