@@ -2,8 +2,7 @@ const events = require('events');
 const util = require('util');
 const nats = require('nats');
 
-const Message = require('./message');
-const Types = require('./types');
+const Channel = require('./channel');
 
 const productEventSubject = "$GVT.%s.DP.%s.%s.EVENT.>"
 
@@ -13,7 +12,7 @@ module.exports = class Subscription extends events.EventEmitter {
 		super();
 
 		this.product = product || null;
-		this.subscriptions = {};
+		this.channels = {};
 	}
 
 	async _fetch(partition, opts) {
@@ -38,73 +37,25 @@ module.exports = class Subscription extends events.EventEmitter {
 		// Starting subscribe to data product
 		let sub = await js.subscribe(subject, cOpts);
 
-		let self = this;
-
-		return {
-			unsubscribe: () => {
-				sub.unsubscribe();
-			},
-			[Symbol.asyncIterator]() {
-				return {
-					sub: (async function* () {
-						for await (const m of sub) {
-
-							// Create a new message
-							let message = new Message()
-							message.product = self.product;
-							message.subject = m.subject;
-							message.msg = m;
-							message.seq = m.seq;
-
-							yield message;
-						}
-					})(),
-					async next() {
-						let { value, done } = await this.sub.next();
-						if (done)
-							return { done: done };
-
-						let message = value;
-
-						// Figure time
-						let nano = message.msg.di.timestampNanos % 1000;
-						let d = new Date((message.msg.di.timestampNanos - nano) / 1000)
-						message.time = d;
-						message.timeNano = nano;
-
-						// Convert data to JavaScript Object
-						let pe = Types.gravity.sdk.types.product_event.ProductEvent.decode(message.msg.data);
-						message.data = pe.toJSObject();
-
-						return {
-							value: message,
-							done: false
-						};
-					},
-					return() {
-						return {
-							done: true
-						};
-					}
-				};
-			}
-		};
+		// Preparing channel
+		return new Channel(this, sub);
 	}
 
 	async subscribe(partition, opts) {
 
 		let _opts = opts || {};
-		let sub = await this._fetch(partition, _opts);
-		this.subscriptions[partition] = sub;
-		for await (const m of sub) {
+		let ch = await this._fetch(partition, _opts);
+		this.channels[partition] = ch;
+		for await (const m of ch) {
 			this.emit('event', m);
 			await m.wait();
+			ch.ackPending = m;
 		}
 
 		// Remove subscription from list
-		delete this.subscriptions[partition];
+		delete this.channels[partition];
 
-		if (Object.keys(this.subscriptions).length == 0) {
+		if (Object.keys(this.channels).length == 0) {
 			this.emit('unsubscribed');
 		}
 	}
@@ -113,7 +64,7 @@ module.exports = class Subscription extends events.EventEmitter {
 
 		return new Promise((resolve) => {
 
-			if (Object.keys(this.subscriptions).length == 0) {
+			if (Object.keys(this.channels).length == 0) {
 				return resolve();
 			}
 
@@ -121,8 +72,8 @@ module.exports = class Subscription extends events.EventEmitter {
 				resolve();
 			})
 
-			Object.values(this.subscriptions).forEach((sub) => {
-				sub.unsubscribe();
+			Object.values(this.channels).forEach((ch) => {
+				ch.close();
 			})
 		});
 	}

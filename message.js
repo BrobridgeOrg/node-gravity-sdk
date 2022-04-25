@@ -5,6 +5,8 @@ module.exports = class Message extends events.EventEmitter {
 	constructor() {
 		super();
 
+		this.subscription = null;
+		this.channel = null;
 		this.msg = null;
 		this.seq = 0;
 		this.subject = '';
@@ -18,7 +20,8 @@ module.exports = class Message extends events.EventEmitter {
 		if (!this.msg)
 			return;
 
-		this.msg.ack();
+//		this.msg.ack();
+		this.channel.ack(this);
 
 		this.emit('ack');
 	}
