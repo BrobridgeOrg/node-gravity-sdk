@@ -47,8 +47,9 @@ module.exports = class Subscription extends events.EventEmitter {
 		let ch = await this._fetch(partition, _opts);
 		this.channels[partition] = ch;
 		for await (const m of ch) {
+			let task = m.wait();
 			this.emit('event', m);
-			await m.wait();
+			await task;
 			ch.ackPending = m;
 		}
 
