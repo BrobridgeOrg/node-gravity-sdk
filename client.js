@@ -1,8 +1,11 @@
 const events = require('events');
+const util = require('util');
 const nats = require('nats');
 
 const Product = require('./product');
 const ConfigStore = require('./config-store');
+
+const domainEventSubject = "$GVT.%s.EVENT.%s"
 
 module.exports = class Client extends events.EventEmitter {
 
@@ -39,6 +42,23 @@ module.exports = class Client extends events.EventEmitter {
 
 	getDomain() {
 		return this.opts.domain;
+	}
+
+	async publish(eventName, payload) {
+
+		// Prparing subject
+		let subject = util.format(domainEventSubject, this.getDomain(), eventName);
+
+		let msg = JSON.stringify({
+			event: eventName,
+			payload: Buffer.from(payload).toString('base64'),
+		});
+
+		let js = this.nc.jetstream();
+
+		const sc = nats.StringCodec();
+
+		await js.publish(subject, sc.encode(msg));
 	}
 
 	async getProduct(name) {
