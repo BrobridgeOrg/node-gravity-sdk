@@ -34,6 +34,13 @@ module.exports = class Subscription extends events.EventEmitter {
 		cOpts.deliverTo(nats.createInbox());
 		cOpts.startSequence(opts.seq || 1);
 
+		// Set durable if enable token
+		let connStates = this.product.client.getConnectionStates();
+		console.log(connStates.durable);
+		if (connStates.durable) {
+			cOpts.durable(connStates.durable);
+		}
+
 		// Starting subscribe to data product
 		let sub = await js.subscribe(subject, cOpts);
 
@@ -43,9 +50,11 @@ module.exports = class Subscription extends events.EventEmitter {
 
 	async subscribe(partition, opts) {
 
+		// Fetch messages
 		let _opts = opts || {};
 		let ch = await this._fetch(partition, _opts);
 		this.channels[partition] = ch;
+
 		for await (const m of ch) {
 			let task = m.wait();
 			this.emit('event', m);
