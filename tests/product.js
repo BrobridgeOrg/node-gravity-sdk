@@ -12,4 +12,6 @@ const client = new gravity.Client();
 
 	// Getting information of specific product
 	let product = await client.getProduct(products[0].name);
+
+	console.log(product);
 })()

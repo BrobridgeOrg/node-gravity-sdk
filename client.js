@@ -24,6 +24,7 @@ module.exports = class Client extends events.EventEmitter {
 		}, opts);
 		this.nc = null;
 		//this.store = new ConfigStore(this, 'PRODUCT');
+		//
 
 		this.connStates = {
 			durable: '',
@@ -140,7 +141,7 @@ module.exports = class Client extends events.EventEmitter {
 		// Sent request
 		let resp = await this.request(api, payload);
 
-		return new Product(this, name, resp.setting);
+		return new Product(this, name, resp);
 /*
 		let p = await this.store.get(name);
 		if (!p)
@@ -162,7 +163,7 @@ module.exports = class Client extends events.EventEmitter {
 		let resp = await this.request(api, payload);
 
 		return resp.products.map((p) => {
-			return new Product(this, p.name, p);
+			return new Product(this, p.setting.name, p);
 		});
 /*
 		// Getting products

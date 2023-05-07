@@ -8,11 +8,13 @@ const productAPI = "$GVT.%s.API.PRODUCT.%s"
 
 module.exports = class Product extends events.EventEmitter {
 
-	constructor(client, name, settings = {}) {
+	constructor(client, name, info = {}) {
 		super();
 
 		this.settings = Object.assign({
-		}, settings);
+		}, info.setting);
+		this.states = Object.assign({
+		}, info.state);
 		this.client = client;
 		this.name = name;
 	}
