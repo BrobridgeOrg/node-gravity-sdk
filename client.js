@@ -1,96 +1,196 @@
 const events = require('events');
-const ffi = require('ffi-napi');
-const ref = require('ref-napi');
-const StructType = require('ref-struct-napi');
-const ArrayType = require('ref-array-napi')
-const utils = require('./utils');
-const Subscriber = require('./subscriber');
-const Adapter = require('./adapter');
-const nativeModule = require('./native');
+const util = require('util');
+const nats = require('nats');
 
-// ClientOptions
-const ClientOptions = StructType({
-	appID: ref.types.CString,
-	appKey: ref.types.CString,
-	pingInterval: ref.types.longlong,
-	maxPingsOutstanding: ref.types.int,
-	maxReconnects: ref.types.int,
-});
+const Product = require('./product');
+const ConfigStore = require('./config-store');
 
-const ClientOptionsPtr = ref.refType(ClientOptions);
-
-// Register methods
-nativeModule.register({
-	'NewClientOptions': [ ClientOptionsPtr, [] ],
-	'NewClient': [ 'pointer', [] ],
-	'ClientConnect': [ utils.ErrorPtr, [ 'pointer', ref.types.CString, ClientOptionsPtr ] ],
-	'ClientDisconnect': [ 'void', [ 'pointer'] ],
-	'ClientSetDisconnectHandler': [ 'void', [ 'pointer', 'pointer' ] ],
-	'ClientSetReconnectHandler': [ 'void', [ 'pointer', 'pointer' ] ],
-});
+const domainEventSubject = '$GVT.%s.EVENT.%s'
+const coreAPI = '$GVT.%s.API.CORE.%s'
+const productAPI = '$GVT.%s.API.PRODUCT.%s'
 
 module.exports = class Client extends events.EventEmitter {
 
-	constructor() {
+	constructor(opts = {}) {
 		super();
 
-		let gravity = nativeModule.getLibrary();
+		this.opts = Object.assign({
+			servers: '0.0.0.0:32803',
+			domain: 'default',
+			maxPingOut: 3,
+			maxReconnectAttempts: -1,
+			pingInterval: 10000,
+			token: '',
+		}, opts);
+		this.nc = null;
+		//this.store = new ConfigStore(this, 'PRODUCT');
+		//
 
-		this.instance = gravity.NewClient();
-		this.loop = null;
-
-		// Disconnect handler
-		this.disconnectHandler = ffi.Callback('void', [], () => {
-			this.emit('disconnect');
-		});
-
-		gravity.ClientSetDisconnectHandler(this.instance, this.disconnectHandler);
-
-		// Reconnect handler
-		this.reconnectHandler = ffi.Callback('void', [], () => {
-			this.emit('reconnect');
-		});
-
-		gravity.ClientSetReconnectHandler(this.instance, this.reconnectHandler);
+		this.connStates = {
+			durable: '',
+			permissions: []
+		};
 	}
 
-	connect(host, opts = {}) {
+	async connect() {
+		let opts = {
+			servers: this.opts.servers,
+			maxPingOut: this.opts.maxPingOut,
+			maxReconnectAttempts: this.opts.maxReconnectAttempts,
+			pingInterval: this.opts.pingInterval,
+		};
+		this.nc = await nats.connect(opts);
+		this.eventUpdater();
 
-		return new Promise((resolve, reject) => {
+		// Authenticate with token
+		await this.authenticate();
+	}
 
-			let gravity = nativeModule.getLibrary();
+	async request(api, payload, headers = {}) {
 
-			let cOpts = gravity.NewClientOptions().deref();
+		// Preparing headers
+		let h = nats.headers();
+		if (this.opts.token) {
+			h.set('Authorization', this.opts.token);
+		}
 
-			Object.assign(cOpts, opts);
+		for (let k in headers) {
+			h.set(k, headers[k]);
+		}
 
-			gravity.ClientConnect.async(this.instance, host, cOpts.ref(), (err, res) => {
-				if (!ref.isNull(res)) {
-					return reject(new Error(res.deref().message));
-				}
+		// Sent request
+		let sc = nats.StringCodec();
+		let msg = await this.nc.request(api, sc.encode(payload), { headers: h });
 
-				this.loop = setInterval(() => {}, 10000);
+		return JSON.parse(sc.decode(msg.data))
+	}
 
-				resolve();
-			});
+	async authenticate() {
+
+		if (!this.opts.token) {
+			return
+		}
+
+		// Preparing payload
+		let api = util.format(coreAPI, this.getDomain(), 'AUTHENTICATE');
+		let payload = JSON.stringify({
+			token: this.opts.token,
 		});
+
+		// Sent request
+		let resp = await this.request(api, payload);
+
+		// Update connection states
+		this.connStates.durable = resp.durable;
+		this.connStates.permissions = resp.permissions;
 	}
 
-	disconnect() {
-		return new Promise((resolve, reject) => {
-			nativeModule.getLibrary().ClientDisconnect.async(this.instance, (err, res) => {
-				clearTimeout(this.loop);
-				this.loop = null;
-				resolve();
-			});
+	async disconnect() {
+		if (!this.nc)
+			return;
+
+		await this.nc.close();
+	}
+
+	async eventUpdater() {
+
+		this.emit('connected');
+
+		for await (const s of this.nc.status()) {
+			switch(s) {
+			case nats.Events.DISCONNECT:
+				this.emit('disconnect');
+			case nats.Events.RECONNECT:
+				this.emit('reconnect');
+			}
+		}
+	}
+
+	getDomain() {
+		return this.opts.domain;
+	}
+
+	getConnectionStates() {
+		return this.connStates;
+	}
+
+	async publish(eventName, payload) {
+
+		// Prparing subject
+		let subject = util.format(domainEventSubject, this.getDomain(), eventName);
+
+		let msg = JSON.stringify({
+			event: eventName,
+			payload: Buffer.from(payload).toString('base64'),
 		});
+
+		let js = this.nc.jetstream();
+		let sc = nats.StringCodec();
+
+		await js.publish(subject, sc.encode(msg));
 	}
 
-	createSubscriber(opts = {}) {
-		return new Subscriber(this, opts);
+	async getProduct(name) {
+
+		// Preparing payload
+		let api = util.format(productAPI, this.getDomain(), 'INFO');
+		let payload = JSON.stringify({
+			name: name,
+		});
+
+		// Sent request
+		let resp = await this.request(api, payload);
+
+		return new Product(this, name, resp);
+/*
+		let p = await this.store.get(name);
+		if (!p)
+			return null;
+
+		let buf = Buffer.from(p.value);
+
+		return new Product(this, name, JSON.parse(buf));
+*/
 	}
 
-	createAdapter(opts = {}) {
-		return new Adapter(this, opts);
+	async getProducts() {
+
+		// Preparing payload
+		let api = util.format(productAPI, this.getDomain(), 'LIST');
+		let payload = JSON.stringify({});
+
+		// Sent request
+		let resp = await this.request(api, payload);
+
+		return resp.products.map((p) => {
+			return new Product(this, p.setting.name, p);
+		});
+/*
+		// Getting products
+		let keys = await this.store.keys()
+
+		let products = await Promise.all(keys.map(async (key) => {
+			let p = await this.store.get(key);
+			let buf = Buffer.from(p.value);
+			let product = new Product(this, key, JSON.parse(buf));
+			return product;
+		}))
+
+		return products;
+		*/
+	}
+
+	async deleteProduct(name) {
+
+		// Preparing payload
+		let api = util.format(productAPI, this.getDomain(), 'DELETE');
+		let payload = JSON.stringify({
+			name: name,
+		});
+
+		// Sent request
+		let resp = await this.request(api, payload);
+
+//		await this.store.delete(name);
 	}
 }

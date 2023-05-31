@@ -2,6 +2,12 @@
 
 Gravity SDK binding for Node.js.
 
+## Compile SDK proto files
+
+```shell
+pbjs -t static-module -w commonjs -o types/types.js ./proto/*
+```
+
 ## Installation
 
 Run the following command to install NPM module:
@@ -12,4 +18,4 @@ npm install gravity-sdk
 
 ## Authors
 
-Copyright(c) 2021 Fred Chien <<fred@brobridge.com>>
+Copyright(c) 2022 Fred Chien <<fred@brobridge.com>>
