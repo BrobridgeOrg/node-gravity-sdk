@@ -6,14 +6,14 @@ const client = new gravity.Client();
 	await client.connect();
 	console.log('Connected to NATS server', client.opts.servers);
 
-	for (let i = 0; i < 10; i++) {
+	for (let i = 0; i < 1000; i++) {
 		await client.publish('accountCreated', JSON.stringify({
-			id: 1000,
+			id: i+1,
 			name: 'test'
 		}));
 		console.log('published new message');
 	}
 
-	client.close();
+	client.disconnect();
 //	process.exit();
 })()
