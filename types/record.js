@@ -26,17 +26,20 @@ function getValueObject(value) {
 		return value.value.toString();
 	case Types.compton.types.record.DataType.UINT64:
 	{
-		let buf = value.value;
+		// Somehow value is Uint8Array rather than Buffer so we convert it first
+		let buf = Buffer.from(value.value);
 		return (buf.readUInt32BE(0) << 8) + buf.readUInt32BE(4);
 	}
 	case Types.compton.types.record.DataType.INT64:
 	{
-		let buf = value.value;
+		// Somehow value is Uint8Array rather than Buffer so we convert it first
+		let buf = Buffer.from(value.value);
 		return (buf.readUInt32BE(0) << 8) + buf.readUInt32BE(4);
 	}
 	case Types.compton.types.record.DataType.FLOAT64:
 	{
-		let buf = value.value;
+		// Somehow value is Uint8Array rather than Buffer so we convert it first
+		let buf = Buffer.from(value.value);
 		return buf.readDoubleBE(0);
 	}
 	case Types.compton.types.record.DataType.BOOLEAN:
