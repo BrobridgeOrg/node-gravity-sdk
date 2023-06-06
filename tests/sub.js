@@ -14,8 +14,7 @@ const client = new gravity.Client();
 	let product = await client.getProduct('accounts');
 	let sub = await product.subscribe([]);
 	sub.on('event', (m) => {
-		console.log(m.seq);
-		console.log(m.data.record);
+		console.log(m.seq, m.data.record);
 		m.ack();
 	});
 })()
