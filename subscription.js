@@ -8,18 +8,19 @@ const productEventSubject = "$GVT.%s.DP.%s.%s.EVENT.>"
 
 module.exports = class Subscription extends events.EventEmitter {
 
-	constructor(product, ) {
+	constructor(product) {
 		super();
 
 		this.product = product || null;
 		this.channels = {};
 	}
 
-	async _fetch(partition, opts) {
+	async _fetch(partition, opts = {}) {
 
-		let js = this.product.client.nc.jetstream()
+		let js = this.product.client.conn.jetstream()
 
 		if (partition <= 0) {
+			// Receiving from all partitions by default
 			partition = '*';
 		} else {
 			partition = partition.toString();
@@ -32,11 +33,22 @@ module.exports = class Subscription extends events.EventEmitter {
 		let cOpts = nats.consumerOpts();
 		cOpts.ackAll();
 		cOpts.deliverTo(nats.createInbox());
-		cOpts.startSequence(opts.seq || 1);
 
-		// Set durable if enable token
+		switch(opts.delivery) {
+		case 'all':
+			cOpts.startSequence(1);
+			break;
+		case 'startSeq':
+			cOpts.startSequence(Number(opts.seq) || 1);
+			break;
+		default:
+			cOpts.deliverNew();
+			break;
+		}
+
 		let connStates = this.product.client.getConnectionStates();
-		console.log(connStates.durable);
+
+		// Set durable to use persistent consumer if token is enabled
 		if (connStates.durable) {
 			cOpts.durable(connStates.durable);
 		}
@@ -48,10 +60,14 @@ module.exports = class Subscription extends events.EventEmitter {
 		return new Channel(this, sub);
 	}
 
-	async subscribe(partition, opts) {
+	async subscribe(partition, opts = {}) {
+
+		let _opts = Object.assign({
+			deliver: 'new',
+			seq: 0,
+		}, opts)
 
 		// Fetch messages
-		let _opts = opts || {};
 		let ch = await this._fetch(partition, _opts);
 		this.channels[partition] = ch;
 

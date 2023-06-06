@@ -22,7 +22,7 @@ module.exports = class Product extends events.EventEmitter {
 	async subscribe(partitions, opts) {
 
 		// Preparing subscription on server
-		let js = this.client.nc.jetstream()
+		let js = this.client.conn.jetstream()
 
 		// Preparing payload
 		let api = util.format(productAPI, this.client.getDomain(), "PREPARE_SUBSCRIPTION");

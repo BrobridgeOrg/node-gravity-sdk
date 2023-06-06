@@ -2,11 +2,11 @@ const events = require('events');
 const util = require('util');
 const nats = require('nats');
 
+const Connection = require('./Connection');
 const Product = require('./product');
 const ConfigStore = require('./config-store');
 
 const domainEventSubject = '$GVT.%s.EVENT.%s'
-const coreAPI = '$GVT.%s.API.CORE.%s'
 const productAPI = '$GVT.%s.API.PRODUCT.%s'
 
 module.exports = class Client extends events.EventEmitter {
@@ -20,9 +20,11 @@ module.exports = class Client extends events.EventEmitter {
 			maxPingOut: 3,
 			maxReconnectAttempts: -1,
 			pingInterval: 10000,
+			reconnectTimeWait: 3000,
 			token: '',
+			waitOnFirstConnect: false
 		}, opts);
-		this.nc = null;
+		this.conn = null;
 		//this.store = new ConfigStore(this, 'PRODUCT');
 		//
 
@@ -33,68 +35,36 @@ module.exports = class Client extends events.EventEmitter {
 	}
 
 	async connect() {
-		let opts = {
-			servers: this.opts.servers,
-			maxPingOut: this.opts.maxPingOut,
-			maxReconnectAttempts: this.opts.maxReconnectAttempts,
-			pingInterval: this.opts.pingInterval,
-		};
-		this.nc = await nats.connect(opts);
-		this.eventUpdater();
 
-		// Authenticate with token
-		await this.authenticate();
-	}
+		let conn = new Connection(this.opts);
+		this.conn = conn;
 
-	async request(api, payload, headers = {}) {
-
-		// Preparing headers
-		let h = nats.headers();
-		if (this.opts.token) {
-			h.set('Authorization', this.opts.token);
-		}
-
-		for (let k in headers) {
-			h.set(k, headers[k]);
-		}
-
-		// Sent request
-		let sc = nats.StringCodec();
-		let msg = await this.nc.request(api, sc.encode(payload), { headers: h });
-
-		return JSON.parse(sc.decode(msg.data))
-	}
-
-	async authenticate() {
-
-		if (!this.opts.token) {
-			return
-		}
-
-		// Preparing payload
-		let api = util.format(coreAPI, this.getDomain(), 'AUTHENTICATE');
-		let payload = JSON.stringify({
-			token: this.opts.token,
+		conn.on('connected', () => {
+			this.emit('connected');
 		});
 
-		// Sent request
-		let resp = await this.request(api, payload);
+		conn.on('disconnected', () => {
+			this.emit('disconnected');
+		});
 
-		// Update connection states
-		this.connStates.durable = resp.durable;
-		this.connStates.permissions = resp.permissions;
+		conn.on('reconnect', () => {
+			this.emit('reconnect');
+		});
+
+		await conn.connect();
+	}
+
+	request(api, payload, headers = {}) {
+		return this.conn.request(api, payload, headers);
 	}
 
 	async disconnect() {
-		if (!this.nc)
-			return;
-
-		await this.nc.close();
+		if (this.conn) {
+			await this.conn.disconnect();
+		}
 	}
 
 	async eventUpdater() {
-
-		this.emit('connected');
 
 		for await (const s of this.nc.status()) {
 			switch(s) {
@@ -102,6 +72,7 @@ module.exports = class Client extends events.EventEmitter {
 				this.emit('disconnect');
 			case nats.Events.RECONNECT:
 				this.emit('reconnect');
+				await this.authenticate();
 			}
 		}
 	}
@@ -124,7 +95,7 @@ module.exports = class Client extends events.EventEmitter {
 			payload: Buffer.from(payload).toString('base64'),
 		});
 
-		let js = this.nc.jetstream();
+		let js = this.conn.jetstream();
 		let sc = nats.StringCodec();
 
 		await js.publish(subject, sc.encode(msg));

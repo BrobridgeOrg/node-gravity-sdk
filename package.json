@@ -1,6 +1,6 @@
 {
   "name": "gravity-sdk",
-  "version": "1.0.6",
+  "version": "1.0.8",
   "description": "Gravity SDK binding for Node.js",
   "main": "index.js",
   "scripts": {
@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/BrobridgeOrg/node-gravity-sdk#readme",
   "dependencies": {
+    "fake-data-generator-taiwan": "^1.0.4",
     "nats": "^2.6.1",
     "protobufjs": "^6.11.2"
   }

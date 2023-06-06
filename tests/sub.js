@@ -1,10 +1,13 @@
 const gravity = require('../');
 
-const client = new gravity.Client();
+const client = new gravity.Client({
+	servers: 'localhost:32803',
+});
 
 (async () => {
+	console.log('Connecting to Gravity server', client.opts.servers);
 	await client.connect();
-	console.log('Connected to NATS server', client.opts.servers);
+	console.log('Connected to server', client.opts.servers);
 
 	// Getting all products
 	let products = await client.getProducts();
@@ -12,10 +15,9 @@ const client = new gravity.Client();
 
 	// Subscribe
 	let product = await client.getProduct('accounts');
-	let sub = await product.subscribe([]);
+	let sub = await product.subscribe([], { delivery: 'all' });
 	sub.on('event', (m) => {
-		console.log(m.seq);
-		console.log(m.data.record);
+		console.log(m.seq, m.data.record);
 		m.ack();
 	});
 })()

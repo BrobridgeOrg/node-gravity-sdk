@@ -23,7 +23,8 @@ function getValueObject(value) {
 	case Types.compton.types.record.DataType.ARRAY:
 		return getArrayValueObject(value)
 	case Types.compton.types.record.DataType.STRING:
-		return value.value.toString();
+		let buf = Buffer.from(value.value);
+		return buf.toString();
 	case Types.compton.types.record.DataType.UINT64:
 	{
 		// Somehow value is Uint8Array rather than Buffer so we convert it first
@@ -57,7 +58,6 @@ Record.prototype.toJSObject = function() {
 //	console.log(this.payload)
 
 	let v = getValueObject(this.payload);
-	//console.log(v);
 
 	return v
 }
