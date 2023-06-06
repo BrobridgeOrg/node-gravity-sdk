@@ -39,7 +39,7 @@ module.exports = class Subscription extends events.EventEmitter {
 			cOpts.startSequence(1);
 			break;
 		case 'startSeq':
-			cOpts.startSequence(opts.seq);
+			cOpts.startSequence(Number(opts.seq) || 1);
 			break;
 		default:
 			cOpts.deliverNew();
