@@ -2,7 +2,7 @@ const events = require('events');
 const util = require('util');
 const nats = require('nats');
 
-const Connection = require('./Connection');
+const Connection = require('./connection');
 const Product = require('./product');
 const ConfigStore = require('./config-store');
 
