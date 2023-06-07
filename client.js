@@ -25,9 +25,6 @@ module.exports = class Client extends events.EventEmitter {
 			waitOnFirstConnect: false
 		}, opts);
 		this.conn = null;
-		//this.store = new ConfigStore(this, 'PRODUCT');
-		//
-
 		this.connStates = {
 			durable: '',
 			permissions: []
@@ -61,19 +58,6 @@ module.exports = class Client extends events.EventEmitter {
 	async disconnect() {
 		if (this.conn) {
 			await this.conn.disconnect();
-		}
-	}
-
-	async eventUpdater() {
-
-		for await (const s of this.nc.status()) {
-			switch(s) {
-			case nats.Events.DISCONNECT:
-				this.emit('disconnect');
-			case nats.Events.RECONNECT:
-				this.emit('reconnect');
-				await this.authenticate();
-			}
 		}
 	}
 
@@ -113,15 +97,6 @@ module.exports = class Client extends events.EventEmitter {
 		let resp = await this.request(api, payload);
 
 		return new Product(this, name, resp);
-/*
-		let p = await this.store.get(name);
-		if (!p)
-			return null;
-
-		let buf = Buffer.from(p.value);
-
-		return new Product(this, name, JSON.parse(buf));
-*/
 	}
 
 	async getProducts() {
@@ -136,19 +111,6 @@ module.exports = class Client extends events.EventEmitter {
 		return resp.products.map((p) => {
 			return new Product(this, p.setting.name, p);
 		});
-/*
-		// Getting products
-		let keys = await this.store.keys()
-
-		let products = await Promise.all(keys.map(async (key) => {
-			let p = await this.store.get(key);
-			let buf = Buffer.from(p.value);
-			let product = new Product(this, key, JSON.parse(buf));
-			return product;
-		}))
-
-		return products;
-		*/
 	}
 
 	async deleteProduct(name) {
@@ -161,7 +123,5 @@ module.exports = class Client extends events.EventEmitter {
 
 		// Sent request
 		let resp = await this.request(api, payload);
-
-//		await this.store.delete(name);
 	}
 }
