@@ -14,6 +14,10 @@ module.exports = class Connection extends events.EventEmitter {
 		this.isActive = false;
 		this.isConnecting = false;
 		this.reconnectTimer = null;
+		this.states = {
+			durable: '',
+			permissions: []
+		};
 	}
 
 	async _connect() {
@@ -113,6 +117,12 @@ module.exports = class Connection extends events.EventEmitter {
 	async authenticate() {
 
 		if (!this.opts.token) {
+
+			this.states = {
+				durable: '',
+				permissions: []
+			};
+
 			return
 		}
 
@@ -126,8 +136,8 @@ module.exports = class Connection extends events.EventEmitter {
 		let resp = await this.request(api, payload);
 
 		// Update connection states
-		this.connStates.durable = resp.durable;
-		this.connStates.permissions = resp.permissions;
+		this.states.durable = resp.durable;
+		this.states.permissions = resp.permissions;
 	}
 
 	getDomain() {
@@ -155,5 +165,9 @@ module.exports = class Connection extends events.EventEmitter {
 
 	jetstream() {
 		return this.nc.jetstream();
+	}
+
+	getStates() {
+		return this.states;
 	}
 };

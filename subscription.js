@@ -17,7 +17,8 @@ module.exports = class Subscription extends events.EventEmitter {
 
 	async _fetch(partition, opts = {}) {
 
-		let js = this.product.client.conn.jetstream()
+		let conn = this.product.client.getConnection();
+		let js = conn.jetstream();
 
 		if (partition <= 0) {
 			// Receiving from all partitions by default
@@ -46,7 +47,7 @@ module.exports = class Subscription extends events.EventEmitter {
 			break;
 		}
 
-		let connStates = this.product.client.getConnectionStates();
+		let connStates = conn.getStates();
 
 		// Set durable to use persistent consumer if token is enabled
 		if (connStates.durable) {
