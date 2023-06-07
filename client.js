@@ -25,10 +25,6 @@ module.exports = class Client extends events.EventEmitter {
 			waitOnFirstConnect: false
 		}, opts);
 		this.conn = null;
-		this.connStates = {
-			durable: '',
-			permissions: []
-		};
 	}
 
 	async connect() {
@@ -65,8 +61,8 @@ module.exports = class Client extends events.EventEmitter {
 		return this.opts.domain;
 	}
 
-	getConnectionStates() {
-		return this.connStates;
+	getConnection() {
+		return this.conn;
 	}
 
 	async publish(eventName, payload) {
