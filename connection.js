@@ -34,8 +34,13 @@ module.exports = class Connection extends events.EventEmitter {
 		this.nc = await nats.connect(opts);
 		this.eventUpdater();
 		
-		// Authenticate with token
-		await this.authenticate();
+		try {
+			// Authenticate with token
+			await this.authenticate();
+		} catch(e) {
+			this.nc.close()
+			throw e
+		}
 	}
 
 	async connect() {
@@ -109,7 +114,7 @@ module.exports = class Connection extends events.EventEmitter {
 				this.emit('disconnect');
 			case nats.Events.RECONNECT:
 				this.emit('reconnect');
-				await this.authenticate();
+				initializeConnection();
 			}
 		}
 	}
@@ -138,6 +143,20 @@ module.exports = class Connection extends events.EventEmitter {
 		// Update connection states
 		this.states.durable = resp.durable;
 		this.states.permissions = resp.permissions;
+	}
+
+	async initializeConnection() {
+
+		try {
+			// Authenticate with token
+			await this.authenticate();
+		} catch(e) {
+			console.error(e);
+			await this.disconnect();
+
+			// reconnect
+			await this.connect();
+		}
 	}
 
 	getDomain() {
