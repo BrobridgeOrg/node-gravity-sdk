@@ -114,7 +114,7 @@ module.exports = class Connection extends events.EventEmitter {
 				this.emit('disconnect');
 			case nats.Events.RECONNECT:
 				this.emit('reconnect');
-				initializeConnection();
+				this.initializeConnection();
 			}
 		}
 	}
