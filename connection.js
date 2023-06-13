@@ -179,7 +179,12 @@ module.exports = class Connection extends events.EventEmitter {
 		let sc = nats.StringCodec();
 		let msg = await this.nc.request(api, sc.encode(payload), { headers: h });
 
-		return JSON.parse(sc.decode(msg.data))
+		let resp = JSON.parse(sc.decode(msg.data))
+		if (resp.error) {
+			throw new Error(resp.error);
+		}
+
+		return resp
 	}
 
 	jetstream() {
