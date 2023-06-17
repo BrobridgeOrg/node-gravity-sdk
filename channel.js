@@ -56,7 +56,8 @@ module.exports = class Channel extends events.EventEmitter {
 
 				// Figure time
 				let nano = message.msg.di.timestampNanos % 1000;
-				let d = new Date((message.msg.di.timestampNanos - nano) / 1000)
+				let ts = Math.floor(message.msg.di.timestampNanos / 1000000);
+				let d = new Date(ts);
 				message.time = d;
 				message.timeNano = nano;
 

@@ -45,6 +45,10 @@ function getValueObject(value) {
 	}
 	case Types.compton.types.record.DataType.BOOLEAN:
 		return value.value[0] ? true : false;
+	case Types.compton.types.record.DataType.TIME:
+		let d = new Date(value.timestamp.seconds.low * 1000);
+		d.setMilliseconds(value.timestamp.nanos / 1e6);
+		return d;
 	case Types.compton.types.record.DataType.NULL:
 		return null;
 	default:
