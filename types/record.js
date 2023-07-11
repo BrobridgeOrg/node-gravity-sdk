@@ -2,6 +2,46 @@ const Types = require('./types');
 
 const Record = Types.compton.types.record.Record;
 
+// Extend for nano seconds
+Date.prototype.setNanoseconds = function(nanos) {
+
+	if (nanos == 0 ) {
+		this.setMilliseconds(0);
+		this.nanos = 0;
+		return;
+	}
+
+	this.setMilliseconds(nanos / 1e6);
+	this.nanos = nanos % 1000000;
+}
+
+Date.prototype.getNanoseconds = function() {
+	return this.nanos;
+}
+
+Date.prototype.toISOString	= function() {
+
+	let date = [
+		this.getFullYear(),
+		String(this.getMonth()).padStart(2, '0'),
+		String(this.getDate()).padStart(2, '0')
+	].join('-');
+
+	let time = [
+		String(this.getHours()).padStart(2, '0'),
+		String(this.getMinutes()).padStart(2, '0'),
+		String(this.getSeconds()).padStart(2, '0')
+	].join(':');
+
+	// Using nano seconds if existing
+	let details = this.getMilliseconds();
+	if (this.getNanoseconds() != undefined) {
+		details = this.getNanoseconds();
+	}
+
+	return date + 'T' + time + '.' + details + 'Z';
+}
+
 function getMapValueObject(value) {
 	return value.map.fields.reduce((data, field) => {
 		data[field.name] = getValueObject(field.value);
@@ -46,11 +86,14 @@ function getValueObject(value) {
 	case Types.compton.types.record.DataType.BOOLEAN:
 		return value.value[0] ? true : false;
 	case Types.compton.types.record.DataType.TIME:
-		let d = new Date(value.timestamp.seconds.low * 1000);
-		d.setMilliseconds(value.timestamp.nanos / 1e6);
+		let d = new Date(value.timestamp.seconds.toNumber() * 1000);
+		d.setNanoseconds(value.timestamp.nanos);
 		return d;
 	case Types.compton.types.record.DataType.NULL:
 		return null;
+	case Types.compton.types.record.DataType.BINARY:
+		let buf = Buffer.from(value.value);
+			return buf;
 	default:
 		return value.value;
 	}
