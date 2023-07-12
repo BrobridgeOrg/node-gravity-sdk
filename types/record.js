@@ -92,8 +92,10 @@ function getValueObject(value) {
 	case Types.compton.types.record.DataType.NULL:
 		return null;
 	case Types.compton.types.record.DataType.BINARY:
+	{
 		let buf = Buffer.from(value.value);
-			return buf;
+		return buf;
+	}
 	default:
 		return value.value;
 	}
