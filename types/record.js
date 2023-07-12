@@ -22,7 +22,7 @@ Date.prototype.getNanoseconds = function() {
 Date.prototype.toISOString	= function() {
 
 	let date = [
-		this.getFullYear(),
+		String(this.getFullYear()).padStart(4, '0'),
 		String(this.getMonth() + 1).padStart(2, '0'),
 		String(this.getDate()).padStart(2, '0')
 	].join('-');
@@ -87,7 +87,7 @@ function getValueObject(value) {
 		return value.value[0] ? true : false;
 	case Types.compton.types.record.DataType.TIME:
 	{
-		let d = new Date(value.timestamp.seconds.toNumber() * 1000 + new.Date().getTimezoneOffset() * 60000);
+		let d = new Date(value.timestamp.seconds.toNumber() * 1000 + new Date().getTimezoneOffset() * 60000);
 		d.setNanoseconds(value.timestamp.nanos);
 		return d;
 	}
