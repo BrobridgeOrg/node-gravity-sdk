@@ -19,7 +19,7 @@ Date.prototype.getNanoseconds = function() {
 	return this.nanos;
 }
 
-Date.prototype.toISOString	= function() {
+Date.prototype.toISOString	= function(digits) {
 
 	let date = [
 		String(this.getFullYear()).padStart(4, '0'),
@@ -33,10 +33,23 @@ Date.prototype.toISOString	= function() {
 		String(this.getSeconds()).padStart(2, '0')
 	].join(':');
 
-	// Using nano seconds if existing
-	let details = this.getMilliseconds();
-	if (this.getNanoseconds() != undefined) {
-		details = details * 1000000 + this.getNanoseconds();
+	// Specify digits
+	let details = String(this.getMilliseconds()).padStart(3, '0');
+	if (digits > 3) {
+
+		if (digits > 9)
+			digits = 9;
+
+		// Using nano seconds if existing
+		if (this.getNanoseconds() > 0) {
+
+			let nanos = String(this.getNanoseconds()).padStart(6, '0');
+
+			let nd = digits - 3;
+			let low = nanos.substr(0, nd)
+
+			details = details + low;
+		}
 	}
 
 	return date + 'T' + time + '.' + details + 'Z';
