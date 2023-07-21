@@ -1,6 +1,6 @@
 const Types = require('./types');
 
-const Record = Types.compton.types.record.Record;
+const Record = Types.gravity.sdk.types.record.Record;
 
 // Extend for nano seconds
 Date.prototype.setNanoseconds = function(nanos) {
@@ -71,42 +71,42 @@ function getArrayValueObject(value) {
 function getValueObject(value) {
 
 	switch(value.type) {
-	case Types.compton.types.record.DataType.MAP:
+	case Types.gravity.sdk.types.record.DataType.MAP:
 		return getMapValueObject(value)
-	case Types.compton.types.record.DataType.ARRAY:
+	case Types.gravity.sdk.types.record.DataType.ARRAY:
 		return getArrayValueObject(value)
-	case Types.compton.types.record.DataType.STRING:
+	case Types.gravity.sdk.types.record.DataType.STRING:
 		let buf = Buffer.from(value.value);
 		return buf.toString();
-	case Types.compton.types.record.DataType.UINT64:
+	case Types.gravity.sdk.types.record.DataType.UINT64:
 	{
 		// Somehow value is Uint8Array rather than Buffer so we convert it first
 		let buf = Buffer.from(value.value);
 		return (buf.readUInt32BE(0) << 8) + buf.readUInt32BE(4);
 	}
-	case Types.compton.types.record.DataType.INT64:
+	case Types.gravity.sdk.types.record.DataType.INT64:
 	{
 		// Somehow value is Uint8Array rather than Buffer so we convert it first
 		let buf = Buffer.from(value.value);
 		return (buf.readUInt32BE(0) << 8) + buf.readUInt32BE(4);
 	}
-	case Types.compton.types.record.DataType.FLOAT64:
+	case Types.gravity.sdk.types.record.DataType.FLOAT64:
 	{
 		// Somehow value is Uint8Array rather than Buffer so we convert it first
 		let buf = Buffer.from(value.value);
 		return buf.readDoubleBE(0);
 	}
-	case Types.compton.types.record.DataType.BOOLEAN:
+	case Types.gravity.sdk.types.record.DataType.BOOLEAN:
 		return value.value[0] ? true : false;
-	case Types.compton.types.record.DataType.TIME:
+	case Types.gravity.sdk.types.record.DataType.TIME:
 	{
 		let d = new Date(value.timestamp.seconds.toNumber() * 1000);
 		d.setNanoseconds(value.timestamp.nanos);
 		return d;
 	}
-	case Types.compton.types.record.DataType.NULL:
+	case Types.gravity.sdk.types.record.DataType.NULL:
 		return null;
-	case Types.compton.types.record.DataType.BINARY:
+	case Types.gravity.sdk.types.record.DataType.BINARY:
 	{
 		let buf = Buffer.from(value.value);
 		return buf;
@@ -118,7 +118,7 @@ function getValueObject(value) {
 
 Record.prototype.toJSObject = function() {
 
-//	console.log(Types.compton.types.record.DataType)
+//	console.log(Types.gravity.sdk.types.record.DataType)
 //	console.log(this.payload)
 
 	let v = getValueObject(this.payload);

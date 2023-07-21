@@ -422,6 +422,1252 @@ $root.gravity = (function() {
                 return product_event;
             })();
 
+            types.record = (function() {
+
+                /**
+                 * Namespace record.
+                 * @memberof gravity.sdk.types
+                 * @namespace
+                 */
+                var record = {};
+
+                /**
+                 * DataType enum.
+                 * @name gravity.sdk.types.record.DataType
+                 * @enum {number}
+                 * @property {number} BOOLEAN=0 BOOLEAN value
+                 * @property {number} BINARY=1 BINARY value
+                 * @property {number} STRING=2 STRING value
+                 * @property {number} UINT64=3 UINT64 value
+                 * @property {number} INT64=4 INT64 value
+                 * @property {number} FLOAT64=5 FLOAT64 value
+                 * @property {number} ARRAY=6 ARRAY value
+                 * @property {number} MAP=7 MAP value
+                 * @property {number} NULL=8 NULL value
+                 * @property {number} TIME=9 TIME value
+                 */
+                record.DataType = (function() {
+                    var valuesById = {}, values = Object.create(valuesById);
+                    values[valuesById[0] = "BOOLEAN"] = 0;
+                    values[valuesById[1] = "BINARY"] = 1;
+                    values[valuesById[2] = "STRING"] = 2;
+                    values[valuesById[3] = "UINT64"] = 3;
+                    values[valuesById[4] = "INT64"] = 4;
+                    values[valuesById[5] = "FLOAT64"] = 5;
+                    values[valuesById[6] = "ARRAY"] = 6;
+                    values[valuesById[7] = "MAP"] = 7;
+                    values[valuesById[8] = "NULL"] = 8;
+                    values[valuesById[9] = "TIME"] = 9;
+                    return values;
+                })();
+
+                record.Record = (function() {
+
+                    /**
+                     * Properties of a Record.
+                     * @memberof gravity.sdk.types.record
+                     * @interface IRecord
+                     * @property {google.protobuf.IStruct|null} [meta] Record meta
+                     * @property {gravity.sdk.types.record.IValue|null} [payload] Record payload
+                     */
+
+                    /**
+                     * Constructs a new Record.
+                     * @memberof gravity.sdk.types.record
+                     * @classdesc Represents a Record.
+                     * @implements IRecord
+                     * @constructor
+                     * @param {gravity.sdk.types.record.IRecord=} [properties] Properties to set
+                     */
+                    function Record(properties) {
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+
+                    /**
+                     * Record meta.
+                     * @member {google.protobuf.IStruct|null|undefined} meta
+                     * @memberof gravity.sdk.types.record.Record
+                     * @instance
+                     */
+                    Record.prototype.meta = null;
+
+                    /**
+                     * Record payload.
+                     * @member {gravity.sdk.types.record.IValue|null|undefined} payload
+                     * @memberof gravity.sdk.types.record.Record
+                     * @instance
+                     */
+                    Record.prototype.payload = null;
+
+                    /**
+                     * Creates a new Record instance using the specified properties.
+                     * @function create
+                     * @memberof gravity.sdk.types.record.Record
+                     * @static
+                     * @param {gravity.sdk.types.record.IRecord=} [properties] Properties to set
+                     * @returns {gravity.sdk.types.record.Record} Record instance
+                     */
+                    Record.create = function create(properties) {
+                        return new Record(properties);
+                    };
+
+                    /**
+                     * Encodes the specified Record message. Does not implicitly {@link gravity.sdk.types.record.Record.verify|verify} messages.
+                     * @function encode
+                     * @memberof gravity.sdk.types.record.Record
+                     * @static
+                     * @param {gravity.sdk.types.record.IRecord} message Record message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    Record.encode = function encode(message, writer) {
+                        if (!writer)
+                            writer = $Writer.create();
+                        if (message.meta != null && Object.hasOwnProperty.call(message, "meta"))
+                            $root.google.protobuf.Struct.encode(message.meta, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+                        if (message.payload != null && Object.hasOwnProperty.call(message, "payload"))
+                            $root.gravity.sdk.types.record.Value.encode(message.payload, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+                        return writer;
+                    };
+
+                    /**
+                     * Encodes the specified Record message, length delimited. Does not implicitly {@link gravity.sdk.types.record.Record.verify|verify} messages.
+                     * @function encodeDelimited
+                     * @memberof gravity.sdk.types.record.Record
+                     * @static
+                     * @param {gravity.sdk.types.record.IRecord} message Record message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    Record.encodeDelimited = function encodeDelimited(message, writer) {
+                        return this.encode(message, writer).ldelim();
+                    };
+
+                    /**
+                     * Decodes a Record message from the specified reader or buffer.
+                     * @function decode
+                     * @memberof gravity.sdk.types.record.Record
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @param {number} [length] Message length if known beforehand
+                     * @returns {gravity.sdk.types.record.Record} Record
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    Record.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.gravity.sdk.types.record.Record();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 1:
+                                message.meta = $root.google.protobuf.Struct.decode(reader, reader.uint32());
+                                break;
+                            case 2:
+                                message.payload = $root.gravity.sdk.types.record.Value.decode(reader, reader.uint32());
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+
+                    /**
+                     * Decodes a Record message from the specified reader or buffer, length delimited.
+                     * @function decodeDelimited
+                     * @memberof gravity.sdk.types.record.Record
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @returns {gravity.sdk.types.record.Record} Record
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    Record.decodeDelimited = function decodeDelimited(reader) {
+                        if (!(reader instanceof $Reader))
+                            reader = new $Reader(reader);
+                        return this.decode(reader, reader.uint32());
+                    };
+
+                    /**
+                     * Verifies a Record message.
+                     * @function verify
+                     * @memberof gravity.sdk.types.record.Record
+                     * @static
+                     * @param {Object.<string,*>} message Plain object to verify
+                     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                     */
+                    Record.verify = function verify(message) {
+                        if (typeof message !== "object" || message === null)
+                            return "object expected";
+                        if (message.meta != null && message.hasOwnProperty("meta")) {
+                            var error = $root.google.protobuf.Struct.verify(message.meta);
+                            if (error)
+                                return "meta." + error;
+                        }
+                        if (message.payload != null && message.hasOwnProperty("payload")) {
+                            var error = $root.gravity.sdk.types.record.Value.verify(message.payload);
+                            if (error)
+                                return "payload." + error;
+                        }
+                        return null;
+                    };
+
+                    /**
+                     * Creates a Record message from a plain object. Also converts values to their respective internal types.
+                     * @function fromObject
+                     * @memberof gravity.sdk.types.record.Record
+                     * @static
+                     * @param {Object.<string,*>} object Plain object
+                     * @returns {gravity.sdk.types.record.Record} Record
+                     */
+                    Record.fromObject = function fromObject(object) {
+                        if (object instanceof $root.gravity.sdk.types.record.Record)
+                            return object;
+                        var message = new $root.gravity.sdk.types.record.Record();
+                        if (object.meta != null) {
+                            if (typeof object.meta !== "object")
+                                throw TypeError(".gravity.sdk.types.record.Record.meta: object expected");
+                            message.meta = $root.google.protobuf.Struct.fromObject(object.meta);
+                        }
+                        if (object.payload != null) {
+                            if (typeof object.payload !== "object")
+                                throw TypeError(".gravity.sdk.types.record.Record.payload: object expected");
+                            message.payload = $root.gravity.sdk.types.record.Value.fromObject(object.payload);
+                        }
+                        return message;
+                    };
+
+                    /**
+                     * Creates a plain object from a Record message. Also converts values to other types if specified.
+                     * @function toObject
+                     * @memberof gravity.sdk.types.record.Record
+                     * @static
+                     * @param {gravity.sdk.types.record.Record} message Record
+                     * @param {$protobuf.IConversionOptions} [options] Conversion options
+                     * @returns {Object.<string,*>} Plain object
+                     */
+                    Record.toObject = function toObject(message, options) {
+                        if (!options)
+                            options = {};
+                        var object = {};
+                        if (options.defaults) {
+                            object.meta = null;
+                            object.payload = null;
+                        }
+                        if (message.meta != null && message.hasOwnProperty("meta"))
+                            object.meta = $root.google.protobuf.Struct.toObject(message.meta, options);
+                        if (message.payload != null && message.hasOwnProperty("payload"))
+                            object.payload = $root.gravity.sdk.types.record.Value.toObject(message.payload, options);
+                        return object;
+                    };
+
+                    /**
+                     * Converts this Record to JSON.
+                     * @function toJSON
+                     * @memberof gravity.sdk.types.record.Record
+                     * @instance
+                     * @returns {Object.<string,*>} JSON object
+                     */
+                    Record.prototype.toJSON = function toJSON() {
+                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                    };
+
+                    return Record;
+                })();
+
+                record.Field = (function() {
+
+                    /**
+                     * Properties of a Field.
+                     * @memberof gravity.sdk.types.record
+                     * @interface IField
+                     * @property {string|null} [name] Field name
+                     * @property {gravity.sdk.types.record.IValue|null} [value] Field value
+                     */
+
+                    /**
+                     * Constructs a new Field.
+                     * @memberof gravity.sdk.types.record
+                     * @classdesc Represents a Field.
+                     * @implements IField
+                     * @constructor
+                     * @param {gravity.sdk.types.record.IField=} [properties] Properties to set
+                     */
+                    function Field(properties) {
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+
+                    /**
+                     * Field name.
+                     * @member {string} name
+                     * @memberof gravity.sdk.types.record.Field
+                     * @instance
+                     */
+                    Field.prototype.name = "";
+
+                    /**
+                     * Field value.
+                     * @member {gravity.sdk.types.record.IValue|null|undefined} value
+                     * @memberof gravity.sdk.types.record.Field
+                     * @instance
+                     */
+                    Field.prototype.value = null;
+
+                    /**
+                     * Creates a new Field instance using the specified properties.
+                     * @function create
+                     * @memberof gravity.sdk.types.record.Field
+                     * @static
+                     * @param {gravity.sdk.types.record.IField=} [properties] Properties to set
+                     * @returns {gravity.sdk.types.record.Field} Field instance
+                     */
+                    Field.create = function create(properties) {
+                        return new Field(properties);
+                    };
+
+                    /**
+                     * Encodes the specified Field message. Does not implicitly {@link gravity.sdk.types.record.Field.verify|verify} messages.
+                     * @function encode
+                     * @memberof gravity.sdk.types.record.Field
+                     * @static
+                     * @param {gravity.sdk.types.record.IField} message Field message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    Field.encode = function encode(message, writer) {
+                        if (!writer)
+                            writer = $Writer.create();
+                        if (message.name != null && Object.hasOwnProperty.call(message, "name"))
+                            writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
+                        if (message.value != null && Object.hasOwnProperty.call(message, "value"))
+                            $root.gravity.sdk.types.record.Value.encode(message.value, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
+                        return writer;
+                    };
+
+                    /**
+                     * Encodes the specified Field message, length delimited. Does not implicitly {@link gravity.sdk.types.record.Field.verify|verify} messages.
+                     * @function encodeDelimited
+                     * @memberof gravity.sdk.types.record.Field
+                     * @static
+                     * @param {gravity.sdk.types.record.IField} message Field message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    Field.encodeDelimited = function encodeDelimited(message, writer) {
+                        return this.encode(message, writer).ldelim();
+                    };
+
+                    /**
+                     * Decodes a Field message from the specified reader or buffer.
+                     * @function decode
+                     * @memberof gravity.sdk.types.record.Field
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @param {number} [length] Message length if known beforehand
+                     * @returns {gravity.sdk.types.record.Field} Field
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    Field.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.gravity.sdk.types.record.Field();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 1:
+                                message.name = reader.string();
+                                break;
+                            case 3:
+                                message.value = $root.gravity.sdk.types.record.Value.decode(reader, reader.uint32());
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+
+                    /**
+                     * Decodes a Field message from the specified reader or buffer, length delimited.
+                     * @function decodeDelimited
+                     * @memberof gravity.sdk.types.record.Field
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @returns {gravity.sdk.types.record.Field} Field
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    Field.decodeDelimited = function decodeDelimited(reader) {
+                        if (!(reader instanceof $Reader))
+                            reader = new $Reader(reader);
+                        return this.decode(reader, reader.uint32());
+                    };
+
+                    /**
+                     * Verifies a Field message.
+                     * @function verify
+                     * @memberof gravity.sdk.types.record.Field
+                     * @static
+                     * @param {Object.<string,*>} message Plain object to verify
+                     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                     */
+                    Field.verify = function verify(message) {
+                        if (typeof message !== "object" || message === null)
+                            return "object expected";
+                        if (message.name != null && message.hasOwnProperty("name"))
+                            if (!$util.isString(message.name))
+                                return "name: string expected";
+                        if (message.value != null && message.hasOwnProperty("value")) {
+                            var error = $root.gravity.sdk.types.record.Value.verify(message.value);
+                            if (error)
+                                return "value." + error;
+                        }
+                        return null;
+                    };
+
+                    /**
+                     * Creates a Field message from a plain object. Also converts values to their respective internal types.
+                     * @function fromObject
+                     * @memberof gravity.sdk.types.record.Field
+                     * @static
+                     * @param {Object.<string,*>} object Plain object
+                     * @returns {gravity.sdk.types.record.Field} Field
+                     */
+                    Field.fromObject = function fromObject(object) {
+                        if (object instanceof $root.gravity.sdk.types.record.Field)
+                            return object;
+                        var message = new $root.gravity.sdk.types.record.Field();
+                        if (object.name != null)
+                            message.name = String(object.name);
+                        if (object.value != null) {
+                            if (typeof object.value !== "object")
+                                throw TypeError(".gravity.sdk.types.record.Field.value: object expected");
+                            message.value = $root.gravity.sdk.types.record.Value.fromObject(object.value);
+                        }
+                        return message;
+                    };
+
+                    /**
+                     * Creates a plain object from a Field message. Also converts values to other types if specified.
+                     * @function toObject
+                     * @memberof gravity.sdk.types.record.Field
+                     * @static
+                     * @param {gravity.sdk.types.record.Field} message Field
+                     * @param {$protobuf.IConversionOptions} [options] Conversion options
+                     * @returns {Object.<string,*>} Plain object
+                     */
+                    Field.toObject = function toObject(message, options) {
+                        if (!options)
+                            options = {};
+                        var object = {};
+                        if (options.defaults) {
+                            object.name = "";
+                            object.value = null;
+                        }
+                        if (message.name != null && message.hasOwnProperty("name"))
+                            object.name = message.name;
+                        if (message.value != null && message.hasOwnProperty("value"))
+                            object.value = $root.gravity.sdk.types.record.Value.toObject(message.value, options);
+                        return object;
+                    };
+
+                    /**
+                     * Converts this Field to JSON.
+                     * @function toJSON
+                     * @memberof gravity.sdk.types.record.Field
+                     * @instance
+                     * @returns {Object.<string,*>} JSON object
+                     */
+                    Field.prototype.toJSON = function toJSON() {
+                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                    };
+
+                    return Field;
+                })();
+
+                record.Value = (function() {
+
+                    /**
+                     * Properties of a Value.
+                     * @memberof gravity.sdk.types.record
+                     * @interface IValue
+                     * @property {gravity.sdk.types.record.DataType|null} [type] Value type
+                     * @property {Uint8Array|null} [value] Value value
+                     * @property {gravity.sdk.types.record.IMapValue|null} [map] Value map
+                     * @property {gravity.sdk.types.record.IArrayValue|null} [array] Value array
+                     * @property {google.protobuf.ITimestamp|null} [timestamp] Value timestamp
+                     */
+
+                    /**
+                     * Constructs a new Value.
+                     * @memberof gravity.sdk.types.record
+                     * @classdesc Represents a Value.
+                     * @implements IValue
+                     * @constructor
+                     * @param {gravity.sdk.types.record.IValue=} [properties] Properties to set
+                     */
+                    function Value(properties) {
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+
+                    /**
+                     * Value type.
+                     * @member {gravity.sdk.types.record.DataType} type
+                     * @memberof gravity.sdk.types.record.Value
+                     * @instance
+                     */
+                    Value.prototype.type = 0;
+
+                    /**
+                     * Value value.
+                     * @member {Uint8Array} value
+                     * @memberof gravity.sdk.types.record.Value
+                     * @instance
+                     */
+                    Value.prototype.value = $util.newBuffer([]);
+
+                    /**
+                     * Value map.
+                     * @member {gravity.sdk.types.record.IMapValue|null|undefined} map
+                     * @memberof gravity.sdk.types.record.Value
+                     * @instance
+                     */
+                    Value.prototype.map = null;
+
+                    /**
+                     * Value array.
+                     * @member {gravity.sdk.types.record.IArrayValue|null|undefined} array
+                     * @memberof gravity.sdk.types.record.Value
+                     * @instance
+                     */
+                    Value.prototype.array = null;
+
+                    /**
+                     * Value timestamp.
+                     * @member {google.protobuf.ITimestamp|null|undefined} timestamp
+                     * @memberof gravity.sdk.types.record.Value
+                     * @instance
+                     */
+                    Value.prototype.timestamp = null;
+
+                    /**
+                     * Creates a new Value instance using the specified properties.
+                     * @function create
+                     * @memberof gravity.sdk.types.record.Value
+                     * @static
+                     * @param {gravity.sdk.types.record.IValue=} [properties] Properties to set
+                     * @returns {gravity.sdk.types.record.Value} Value instance
+                     */
+                    Value.create = function create(properties) {
+                        return new Value(properties);
+                    };
+
+                    /**
+                     * Encodes the specified Value message. Does not implicitly {@link gravity.sdk.types.record.Value.verify|verify} messages.
+                     * @function encode
+                     * @memberof gravity.sdk.types.record.Value
+                     * @static
+                     * @param {gravity.sdk.types.record.IValue} message Value message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    Value.encode = function encode(message, writer) {
+                        if (!writer)
+                            writer = $Writer.create();
+                        if (message.type != null && Object.hasOwnProperty.call(message, "type"))
+                            writer.uint32(/* id 1, wireType 0 =*/8).int32(message.type);
+                        if (message.value != null && Object.hasOwnProperty.call(message, "value"))
+                            writer.uint32(/* id 2, wireType 2 =*/18).bytes(message.value);
+                        if (message.map != null && Object.hasOwnProperty.call(message, "map"))
+                            $root.gravity.sdk.types.record.MapValue.encode(message.map, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
+                        if (message.array != null && Object.hasOwnProperty.call(message, "array"))
+                            $root.gravity.sdk.types.record.ArrayValue.encode(message.array, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
+                        if (message.timestamp != null && Object.hasOwnProperty.call(message, "timestamp"))
+                            $root.google.protobuf.Timestamp.encode(message.timestamp, writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
+                        return writer;
+                    };
+
+                    /**
+                     * Encodes the specified Value message, length delimited. Does not implicitly {@link gravity.sdk.types.record.Value.verify|verify} messages.
+                     * @function encodeDelimited
+                     * @memberof gravity.sdk.types.record.Value
+                     * @static
+                     * @param {gravity.sdk.types.record.IValue} message Value message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    Value.encodeDelimited = function encodeDelimited(message, writer) {
+                        return this.encode(message, writer).ldelim();
+                    };
+
+                    /**
+                     * Decodes a Value message from the specified reader or buffer.
+                     * @function decode
+                     * @memberof gravity.sdk.types.record.Value
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @param {number} [length] Message length if known beforehand
+                     * @returns {gravity.sdk.types.record.Value} Value
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    Value.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.gravity.sdk.types.record.Value();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 1:
+                                message.type = reader.int32();
+                                break;
+                            case 2:
+                                message.value = reader.bytes();
+                                break;
+                            case 3:
+                                message.map = $root.gravity.sdk.types.record.MapValue.decode(reader, reader.uint32());
+                                break;
+                            case 4:
+                                message.array = $root.gravity.sdk.types.record.ArrayValue.decode(reader, reader.uint32());
+                                break;
+                            case 5:
+                                message.timestamp = $root.google.protobuf.Timestamp.decode(reader, reader.uint32());
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+
+                    /**
+                     * Decodes a Value message from the specified reader or buffer, length delimited.
+                     * @function decodeDelimited
+                     * @memberof gravity.sdk.types.record.Value
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @returns {gravity.sdk.types.record.Value} Value
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    Value.decodeDelimited = function decodeDelimited(reader) {
+                        if (!(reader instanceof $Reader))
+                            reader = new $Reader(reader);
+                        return this.decode(reader, reader.uint32());
+                    };
+
+                    /**
+                     * Verifies a Value message.
+                     * @function verify
+                     * @memberof gravity.sdk.types.record.Value
+                     * @static
+                     * @param {Object.<string,*>} message Plain object to verify
+                     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                     */
+                    Value.verify = function verify(message) {
+                        if (typeof message !== "object" || message === null)
+                            return "object expected";
+                        if (message.type != null && message.hasOwnProperty("type"))
+                            switch (message.type) {
+                            default:
+                                return "type: enum value expected";
+                            case 0:
+                            case 1:
+                            case 2:
+                            case 3:
+                            case 4:
+                            case 5:
+                            case 6:
+                            case 7:
+                            case 8:
+                            case 9:
+                                break;
+                            }
+                        if (message.value != null && message.hasOwnProperty("value"))
+                            if (!(message.value && typeof message.value.length === "number" || $util.isString(message.value)))
+                                return "value: buffer expected";
+                        if (message.map != null && message.hasOwnProperty("map")) {
+                            var error = $root.gravity.sdk.types.record.MapValue.verify(message.map);
+                            if (error)
+                                return "map." + error;
+                        }
+                        if (message.array != null && message.hasOwnProperty("array")) {
+                            var error = $root.gravity.sdk.types.record.ArrayValue.verify(message.array);
+                            if (error)
+                                return "array." + error;
+                        }
+                        if (message.timestamp != null && message.hasOwnProperty("timestamp")) {
+                            var error = $root.google.protobuf.Timestamp.verify(message.timestamp);
+                            if (error)
+                                return "timestamp." + error;
+                        }
+                        return null;
+                    };
+
+                    /**
+                     * Creates a Value message from a plain object. Also converts values to their respective internal types.
+                     * @function fromObject
+                     * @memberof gravity.sdk.types.record.Value
+                     * @static
+                     * @param {Object.<string,*>} object Plain object
+                     * @returns {gravity.sdk.types.record.Value} Value
+                     */
+                    Value.fromObject = function fromObject(object) {
+                        if (object instanceof $root.gravity.sdk.types.record.Value)
+                            return object;
+                        var message = new $root.gravity.sdk.types.record.Value();
+                        switch (object.type) {
+                        case "BOOLEAN":
+                        case 0:
+                            message.type = 0;
+                            break;
+                        case "BINARY":
+                        case 1:
+                            message.type = 1;
+                            break;
+                        case "STRING":
+                        case 2:
+                            message.type = 2;
+                            break;
+                        case "UINT64":
+                        case 3:
+                            message.type = 3;
+                            break;
+                        case "INT64":
+                        case 4:
+                            message.type = 4;
+                            break;
+                        case "FLOAT64":
+                        case 5:
+                            message.type = 5;
+                            break;
+                        case "ARRAY":
+                        case 6:
+                            message.type = 6;
+                            break;
+                        case "MAP":
+                        case 7:
+                            message.type = 7;
+                            break;
+                        case "NULL":
+                        case 8:
+                            message.type = 8;
+                            break;
+                        case "TIME":
+                        case 9:
+                            message.type = 9;
+                            break;
+                        }
+                        if (object.value != null)
+                            if (typeof object.value === "string")
+                                $util.base64.decode(object.value, message.value = $util.newBuffer($util.base64.length(object.value)), 0);
+                            else if (object.value.length)
+                                message.value = object.value;
+                        if (object.map != null) {
+                            if (typeof object.map !== "object")
+                                throw TypeError(".gravity.sdk.types.record.Value.map: object expected");
+                            message.map = $root.gravity.sdk.types.record.MapValue.fromObject(object.map);
+                        }
+                        if (object.array != null) {
+                            if (typeof object.array !== "object")
+                                throw TypeError(".gravity.sdk.types.record.Value.array: object expected");
+                            message.array = $root.gravity.sdk.types.record.ArrayValue.fromObject(object.array);
+                        }
+                        if (object.timestamp != null) {
+                            if (typeof object.timestamp !== "object")
+                                throw TypeError(".gravity.sdk.types.record.Value.timestamp: object expected");
+                            message.timestamp = $root.google.protobuf.Timestamp.fromObject(object.timestamp);
+                        }
+                        return message;
+                    };
+
+                    /**
+                     * Creates a plain object from a Value message. Also converts values to other types if specified.
+                     * @function toObject
+                     * @memberof gravity.sdk.types.record.Value
+                     * @static
+                     * @param {gravity.sdk.types.record.Value} message Value
+                     * @param {$protobuf.IConversionOptions} [options] Conversion options
+                     * @returns {Object.<string,*>} Plain object
+                     */
+                    Value.toObject = function toObject(message, options) {
+                        if (!options)
+                            options = {};
+                        var object = {};
+                        if (options.defaults) {
+                            object.type = options.enums === String ? "BOOLEAN" : 0;
+                            if (options.bytes === String)
+                                object.value = "";
+                            else {
+                                object.value = [];
+                                if (options.bytes !== Array)
+                                    object.value = $util.newBuffer(object.value);
+                            }
+                            object.map = null;
+                            object.array = null;
+                            object.timestamp = null;
+                        }
+                        if (message.type != null && message.hasOwnProperty("type"))
+                            object.type = options.enums === String ? $root.gravity.sdk.types.record.DataType[message.type] : message.type;
+                        if (message.value != null && message.hasOwnProperty("value"))
+                            object.value = options.bytes === String ? $util.base64.encode(message.value, 0, message.value.length) : options.bytes === Array ? Array.prototype.slice.call(message.value) : message.value;
+                        if (message.map != null && message.hasOwnProperty("map"))
+                            object.map = $root.gravity.sdk.types.record.MapValue.toObject(message.map, options);
+                        if (message.array != null && message.hasOwnProperty("array"))
+                            object.array = $root.gravity.sdk.types.record.ArrayValue.toObject(message.array, options);
+                        if (message.timestamp != null && message.hasOwnProperty("timestamp"))
+                            object.timestamp = $root.google.protobuf.Timestamp.toObject(message.timestamp, options);
+                        return object;
+                    };
+
+                    /**
+                     * Converts this Value to JSON.
+                     * @function toJSON
+                     * @memberof gravity.sdk.types.record.Value
+                     * @instance
+                     * @returns {Object.<string,*>} JSON object
+                     */
+                    Value.prototype.toJSON = function toJSON() {
+                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                    };
+
+                    return Value;
+                })();
+
+                record.MapValue = (function() {
+
+                    /**
+                     * Properties of a MapValue.
+                     * @memberof gravity.sdk.types.record
+                     * @interface IMapValue
+                     * @property {Array.<gravity.sdk.types.record.IField>|null} [fields] MapValue fields
+                     */
+
+                    /**
+                     * Constructs a new MapValue.
+                     * @memberof gravity.sdk.types.record
+                     * @classdesc Represents a MapValue.
+                     * @implements IMapValue
+                     * @constructor
+                     * @param {gravity.sdk.types.record.IMapValue=} [properties] Properties to set
+                     */
+                    function MapValue(properties) {
+                        this.fields = [];
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+
+                    /**
+                     * MapValue fields.
+                     * @member {Array.<gravity.sdk.types.record.IField>} fields
+                     * @memberof gravity.sdk.types.record.MapValue
+                     * @instance
+                     */
+                    MapValue.prototype.fields = $util.emptyArray;
+
+                    /**
+                     * Creates a new MapValue instance using the specified properties.
+                     * @function create
+                     * @memberof gravity.sdk.types.record.MapValue
+                     * @static
+                     * @param {gravity.sdk.types.record.IMapValue=} [properties] Properties to set
+                     * @returns {gravity.sdk.types.record.MapValue} MapValue instance
+                     */
+                    MapValue.create = function create(properties) {
+                        return new MapValue(properties);
+                    };
+
+                    /**
+                     * Encodes the specified MapValue message. Does not implicitly {@link gravity.sdk.types.record.MapValue.verify|verify} messages.
+                     * @function encode
+                     * @memberof gravity.sdk.types.record.MapValue
+                     * @static
+                     * @param {gravity.sdk.types.record.IMapValue} message MapValue message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    MapValue.encode = function encode(message, writer) {
+                        if (!writer)
+                            writer = $Writer.create();
+                        if (message.fields != null && message.fields.length)
+                            for (var i = 0; i < message.fields.length; ++i)
+                                $root.gravity.sdk.types.record.Field.encode(message.fields[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+                        return writer;
+                    };
+
+                    /**
+                     * Encodes the specified MapValue message, length delimited. Does not implicitly {@link gravity.sdk.types.record.MapValue.verify|verify} messages.
+                     * @function encodeDelimited
+                     * @memberof gravity.sdk.types.record.MapValue
+                     * @static
+                     * @param {gravity.sdk.types.record.IMapValue} message MapValue message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    MapValue.encodeDelimited = function encodeDelimited(message, writer) {
+                        return this.encode(message, writer).ldelim();
+                    };
+
+                    /**
+                     * Decodes a MapValue message from the specified reader or buffer.
+                     * @function decode
+                     * @memberof gravity.sdk.types.record.MapValue
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @param {number} [length] Message length if known beforehand
+                     * @returns {gravity.sdk.types.record.MapValue} MapValue
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    MapValue.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.gravity.sdk.types.record.MapValue();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 1:
+                                if (!(message.fields && message.fields.length))
+                                    message.fields = [];
+                                message.fields.push($root.gravity.sdk.types.record.Field.decode(reader, reader.uint32()));
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+
+                    /**
+                     * Decodes a MapValue message from the specified reader or buffer, length delimited.
+                     * @function decodeDelimited
+                     * @memberof gravity.sdk.types.record.MapValue
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @returns {gravity.sdk.types.record.MapValue} MapValue
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    MapValue.decodeDelimited = function decodeDelimited(reader) {
+                        if (!(reader instanceof $Reader))
+                            reader = new $Reader(reader);
+                        return this.decode(reader, reader.uint32());
+                    };
+
+                    /**
+                     * Verifies a MapValue message.
+                     * @function verify
+                     * @memberof gravity.sdk.types.record.MapValue
+                     * @static
+                     * @param {Object.<string,*>} message Plain object to verify
+                     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                     */
+                    MapValue.verify = function verify(message) {
+                        if (typeof message !== "object" || message === null)
+                            return "object expected";
+                        if (message.fields != null && message.hasOwnProperty("fields")) {
+                            if (!Array.isArray(message.fields))
+                                return "fields: array expected";
+                            for (var i = 0; i < message.fields.length; ++i) {
+                                var error = $root.gravity.sdk.types.record.Field.verify(message.fields[i]);
+                                if (error)
+                                    return "fields." + error;
+                            }
+                        }
+                        return null;
+                    };
+
+                    /**
+                     * Creates a MapValue message from a plain object. Also converts values to their respective internal types.
+                     * @function fromObject
+                     * @memberof gravity.sdk.types.record.MapValue
+                     * @static
+                     * @param {Object.<string,*>} object Plain object
+                     * @returns {gravity.sdk.types.record.MapValue} MapValue
+                     */
+                    MapValue.fromObject = function fromObject(object) {
+                        if (object instanceof $root.gravity.sdk.types.record.MapValue)
+                            return object;
+                        var message = new $root.gravity.sdk.types.record.MapValue();
+                        if (object.fields) {
+                            if (!Array.isArray(object.fields))
+                                throw TypeError(".gravity.sdk.types.record.MapValue.fields: array expected");
+                            message.fields = [];
+                            for (var i = 0; i < object.fields.length; ++i) {
+                                if (typeof object.fields[i] !== "object")
+                                    throw TypeError(".gravity.sdk.types.record.MapValue.fields: object expected");
+                                message.fields[i] = $root.gravity.sdk.types.record.Field.fromObject(object.fields[i]);
+                            }
+                        }
+                        return message;
+                    };
+
+                    /**
+                     * Creates a plain object from a MapValue message. Also converts values to other types if specified.
+                     * @function toObject
+                     * @memberof gravity.sdk.types.record.MapValue
+                     * @static
+                     * @param {gravity.sdk.types.record.MapValue} message MapValue
+                     * @param {$protobuf.IConversionOptions} [options] Conversion options
+                     * @returns {Object.<string,*>} Plain object
+                     */
+                    MapValue.toObject = function toObject(message, options) {
+                        if (!options)
+                            options = {};
+                        var object = {};
+                        if (options.arrays || options.defaults)
+                            object.fields = [];
+                        if (message.fields && message.fields.length) {
+                            object.fields = [];
+                            for (var j = 0; j < message.fields.length; ++j)
+                                object.fields[j] = $root.gravity.sdk.types.record.Field.toObject(message.fields[j], options);
+                        }
+                        return object;
+                    };
+
+                    /**
+                     * Converts this MapValue to JSON.
+                     * @function toJSON
+                     * @memberof gravity.sdk.types.record.MapValue
+                     * @instance
+                     * @returns {Object.<string,*>} JSON object
+                     */
+                    MapValue.prototype.toJSON = function toJSON() {
+                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                    };
+
+                    return MapValue;
+                })();
+
+                record.ArrayValue = (function() {
+
+                    /**
+                     * Properties of an ArrayValue.
+                     * @memberof gravity.sdk.types.record
+                     * @interface IArrayValue
+                     * @property {Array.<gravity.sdk.types.record.IValue>|null} [elements] ArrayValue elements
+                     */
+
+                    /**
+                     * Constructs a new ArrayValue.
+                     * @memberof gravity.sdk.types.record
+                     * @classdesc Represents an ArrayValue.
+                     * @implements IArrayValue
+                     * @constructor
+                     * @param {gravity.sdk.types.record.IArrayValue=} [properties] Properties to set
+                     */
+                    function ArrayValue(properties) {
+                        this.elements = [];
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+
+                    /**
+                     * ArrayValue elements.
+                     * @member {Array.<gravity.sdk.types.record.IValue>} elements
+                     * @memberof gravity.sdk.types.record.ArrayValue
+                     * @instance
+                     */
+                    ArrayValue.prototype.elements = $util.emptyArray;
+
+                    /**
+                     * Creates a new ArrayValue instance using the specified properties.
+                     * @function create
+                     * @memberof gravity.sdk.types.record.ArrayValue
+                     * @static
+                     * @param {gravity.sdk.types.record.IArrayValue=} [properties] Properties to set
+                     * @returns {gravity.sdk.types.record.ArrayValue} ArrayValue instance
+                     */
+                    ArrayValue.create = function create(properties) {
+                        return new ArrayValue(properties);
+                    };
+
+                    /**
+                     * Encodes the specified ArrayValue message. Does not implicitly {@link gravity.sdk.types.record.ArrayValue.verify|verify} messages.
+                     * @function encode
+                     * @memberof gravity.sdk.types.record.ArrayValue
+                     * @static
+                     * @param {gravity.sdk.types.record.IArrayValue} message ArrayValue message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    ArrayValue.encode = function encode(message, writer) {
+                        if (!writer)
+                            writer = $Writer.create();
+                        if (message.elements != null && message.elements.length)
+                            for (var i = 0; i < message.elements.length; ++i)
+                                $root.gravity.sdk.types.record.Value.encode(message.elements[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+                        return writer;
+                    };
+
+                    /**
+                     * Encodes the specified ArrayValue message, length delimited. Does not implicitly {@link gravity.sdk.types.record.ArrayValue.verify|verify} messages.
+                     * @function encodeDelimited
+                     * @memberof gravity.sdk.types.record.ArrayValue
+                     * @static
+                     * @param {gravity.sdk.types.record.IArrayValue} message ArrayValue message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    ArrayValue.encodeDelimited = function encodeDelimited(message, writer) {
+                        return this.encode(message, writer).ldelim();
+                    };
+
+                    /**
+                     * Decodes an ArrayValue message from the specified reader or buffer.
+                     * @function decode
+                     * @memberof gravity.sdk.types.record.ArrayValue
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @param {number} [length] Message length if known beforehand
+                     * @returns {gravity.sdk.types.record.ArrayValue} ArrayValue
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    ArrayValue.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.gravity.sdk.types.record.ArrayValue();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 1:
+                                if (!(message.elements && message.elements.length))
+                                    message.elements = [];
+                                message.elements.push($root.gravity.sdk.types.record.Value.decode(reader, reader.uint32()));
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+
+                    /**
+                     * Decodes an ArrayValue message from the specified reader or buffer, length delimited.
+                     * @function decodeDelimited
+                     * @memberof gravity.sdk.types.record.ArrayValue
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @returns {gravity.sdk.types.record.ArrayValue} ArrayValue
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    ArrayValue.decodeDelimited = function decodeDelimited(reader) {
+                        if (!(reader instanceof $Reader))
+                            reader = new $Reader(reader);
+                        return this.decode(reader, reader.uint32());
+                    };
+
+                    /**
+                     * Verifies an ArrayValue message.
+                     * @function verify
+                     * @memberof gravity.sdk.types.record.ArrayValue
+                     * @static
+                     * @param {Object.<string,*>} message Plain object to verify
+                     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                     */
+                    ArrayValue.verify = function verify(message) {
+                        if (typeof message !== "object" || message === null)
+                            return "object expected";
+                        if (message.elements != null && message.hasOwnProperty("elements")) {
+                            if (!Array.isArray(message.elements))
+                                return "elements: array expected";
+                            for (var i = 0; i < message.elements.length; ++i) {
+                                var error = $root.gravity.sdk.types.record.Value.verify(message.elements[i]);
+                                if (error)
+                                    return "elements." + error;
+                            }
+                        }
+                        return null;
+                    };
+
+                    /**
+                     * Creates an ArrayValue message from a plain object. Also converts values to their respective internal types.
+                     * @function fromObject
+                     * @memberof gravity.sdk.types.record.ArrayValue
+                     * @static
+                     * @param {Object.<string,*>} object Plain object
+                     * @returns {gravity.sdk.types.record.ArrayValue} ArrayValue
+                     */
+                    ArrayValue.fromObject = function fromObject(object) {
+                        if (object instanceof $root.gravity.sdk.types.record.ArrayValue)
+                            return object;
+                        var message = new $root.gravity.sdk.types.record.ArrayValue();
+                        if (object.elements) {
+                            if (!Array.isArray(object.elements))
+                                throw TypeError(".gravity.sdk.types.record.ArrayValue.elements: array expected");
+                            message.elements = [];
+                            for (var i = 0; i < object.elements.length; ++i) {
+                                if (typeof object.elements[i] !== "object")
+                                    throw TypeError(".gravity.sdk.types.record.ArrayValue.elements: object expected");
+                                message.elements[i] = $root.gravity.sdk.types.record.Value.fromObject(object.elements[i]);
+                            }
+                        }
+                        return message;
+                    };
+
+                    /**
+                     * Creates a plain object from an ArrayValue message. Also converts values to other types if specified.
+                     * @function toObject
+                     * @memberof gravity.sdk.types.record.ArrayValue
+                     * @static
+                     * @param {gravity.sdk.types.record.ArrayValue} message ArrayValue
+                     * @param {$protobuf.IConversionOptions} [options] Conversion options
+                     * @returns {Object.<string,*>} Plain object
+                     */
+                    ArrayValue.toObject = function toObject(message, options) {
+                        if (!options)
+                            options = {};
+                        var object = {};
+                        if (options.arrays || options.defaults)
+                            object.elements = [];
+                        if (message.elements && message.elements.length) {
+                            object.elements = [];
+                            for (var j = 0; j < message.elements.length; ++j)
+                                object.elements[j] = $root.gravity.sdk.types.record.Value.toObject(message.elements[j], options);
+                        }
+                        return object;
+                    };
+
+                    /**
+                     * Converts this ArrayValue to JSON.
+                     * @function toJSON
+                     * @memberof gravity.sdk.types.record.ArrayValue
+                     * @instance
+                     * @returns {Object.<string,*>} JSON object
+                     */
+                    ArrayValue.prototype.toJSON = function toJSON() {
+                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                    };
+
+                    return ArrayValue;
+                })();
+
+                return record;
+            })();
+
             return types;
         })();
 
@@ -429,1276 +1675,6 @@ $root.gravity = (function() {
     })();
 
     return gravity;
-})();
-
-$root.compton = (function() {
-
-    /**
-     * Namespace compton.
-     * @exports compton
-     * @namespace
-     */
-    var compton = {};
-
-    compton.types = (function() {
-
-        /**
-         * Namespace types.
-         * @memberof compton
-         * @namespace
-         */
-        var types = {};
-
-        types.record = (function() {
-
-            /**
-             * Namespace record.
-             * @memberof compton.types
-             * @namespace
-             */
-            var record = {};
-
-            /**
-             * DataType enum.
-             * @name compton.types.record.DataType
-             * @enum {number}
-             * @property {number} BOOLEAN=0 BOOLEAN value
-             * @property {number} BINARY=1 BINARY value
-             * @property {number} STRING=2 STRING value
-             * @property {number} UINT64=3 UINT64 value
-             * @property {number} INT64=4 INT64 value
-             * @property {number} FLOAT64=5 FLOAT64 value
-             * @property {number} ARRAY=6 ARRAY value
-             * @property {number} MAP=7 MAP value
-             * @property {number} NULL=8 NULL value
-             * @property {number} TIME=9 TIME value
-             */
-            record.DataType = (function() {
-                var valuesById = {}, values = Object.create(valuesById);
-                values[valuesById[0] = "BOOLEAN"] = 0;
-                values[valuesById[1] = "BINARY"] = 1;
-                values[valuesById[2] = "STRING"] = 2;
-                values[valuesById[3] = "UINT64"] = 3;
-                values[valuesById[4] = "INT64"] = 4;
-                values[valuesById[5] = "FLOAT64"] = 5;
-                values[valuesById[6] = "ARRAY"] = 6;
-                values[valuesById[7] = "MAP"] = 7;
-                values[valuesById[8] = "NULL"] = 8;
-                values[valuesById[9] = "TIME"] = 9;
-                return values;
-            })();
-
-            record.Record = (function() {
-
-                /**
-                 * Properties of a Record.
-                 * @memberof compton.types.record
-                 * @interface IRecord
-                 * @property {google.protobuf.IStruct|null} [meta] Record meta
-                 * @property {compton.types.record.IValue|null} [payload] Record payload
-                 */
-
-                /**
-                 * Constructs a new Record.
-                 * @memberof compton.types.record
-                 * @classdesc Represents a Record.
-                 * @implements IRecord
-                 * @constructor
-                 * @param {compton.types.record.IRecord=} [properties] Properties to set
-                 */
-                function Record(properties) {
-                    if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                            if (properties[keys[i]] != null)
-                                this[keys[i]] = properties[keys[i]];
-                }
-
-                /**
-                 * Record meta.
-                 * @member {google.protobuf.IStruct|null|undefined} meta
-                 * @memberof compton.types.record.Record
-                 * @instance
-                 */
-                Record.prototype.meta = null;
-
-                /**
-                 * Record payload.
-                 * @member {compton.types.record.IValue|null|undefined} payload
-                 * @memberof compton.types.record.Record
-                 * @instance
-                 */
-                Record.prototype.payload = null;
-
-                /**
-                 * Creates a new Record instance using the specified properties.
-                 * @function create
-                 * @memberof compton.types.record.Record
-                 * @static
-                 * @param {compton.types.record.IRecord=} [properties] Properties to set
-                 * @returns {compton.types.record.Record} Record instance
-                 */
-                Record.create = function create(properties) {
-                    return new Record(properties);
-                };
-
-                /**
-                 * Encodes the specified Record message. Does not implicitly {@link compton.types.record.Record.verify|verify} messages.
-                 * @function encode
-                 * @memberof compton.types.record.Record
-                 * @static
-                 * @param {compton.types.record.IRecord} message Record message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                Record.encode = function encode(message, writer) {
-                    if (!writer)
-                        writer = $Writer.create();
-                    if (message.meta != null && Object.hasOwnProperty.call(message, "meta"))
-                        $root.google.protobuf.Struct.encode(message.meta, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
-                    if (message.payload != null && Object.hasOwnProperty.call(message, "payload"))
-                        $root.compton.types.record.Value.encode(message.payload, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
-                    return writer;
-                };
-
-                /**
-                 * Encodes the specified Record message, length delimited. Does not implicitly {@link compton.types.record.Record.verify|verify} messages.
-                 * @function encodeDelimited
-                 * @memberof compton.types.record.Record
-                 * @static
-                 * @param {compton.types.record.IRecord} message Record message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                Record.encodeDelimited = function encodeDelimited(message, writer) {
-                    return this.encode(message, writer).ldelim();
-                };
-
-                /**
-                 * Decodes a Record message from the specified reader or buffer.
-                 * @function decode
-                 * @memberof compton.types.record.Record
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @param {number} [length] Message length if known beforehand
-                 * @returns {compton.types.record.Record} Record
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                Record.decode = function decode(reader, length) {
-                    if (!(reader instanceof $Reader))
-                        reader = $Reader.create(reader);
-                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.compton.types.record.Record();
-                    while (reader.pos < end) {
-                        var tag = reader.uint32();
-                        switch (tag >>> 3) {
-                        case 1:
-                            message.meta = $root.google.protobuf.Struct.decode(reader, reader.uint32());
-                            break;
-                        case 2:
-                            message.payload = $root.compton.types.record.Value.decode(reader, reader.uint32());
-                            break;
-                        default:
-                            reader.skipType(tag & 7);
-                            break;
-                        }
-                    }
-                    return message;
-                };
-
-                /**
-                 * Decodes a Record message from the specified reader or buffer, length delimited.
-                 * @function decodeDelimited
-                 * @memberof compton.types.record.Record
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @returns {compton.types.record.Record} Record
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                Record.decodeDelimited = function decodeDelimited(reader) {
-                    if (!(reader instanceof $Reader))
-                        reader = new $Reader(reader);
-                    return this.decode(reader, reader.uint32());
-                };
-
-                /**
-                 * Verifies a Record message.
-                 * @function verify
-                 * @memberof compton.types.record.Record
-                 * @static
-                 * @param {Object.<string,*>} message Plain object to verify
-                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
-                 */
-                Record.verify = function verify(message) {
-                    if (typeof message !== "object" || message === null)
-                        return "object expected";
-                    if (message.meta != null && message.hasOwnProperty("meta")) {
-                        var error = $root.google.protobuf.Struct.verify(message.meta);
-                        if (error)
-                            return "meta." + error;
-                    }
-                    if (message.payload != null && message.hasOwnProperty("payload")) {
-                        var error = $root.compton.types.record.Value.verify(message.payload);
-                        if (error)
-                            return "payload." + error;
-                    }
-                    return null;
-                };
-
-                /**
-                 * Creates a Record message from a plain object. Also converts values to their respective internal types.
-                 * @function fromObject
-                 * @memberof compton.types.record.Record
-                 * @static
-                 * @param {Object.<string,*>} object Plain object
-                 * @returns {compton.types.record.Record} Record
-                 */
-                Record.fromObject = function fromObject(object) {
-                    if (object instanceof $root.compton.types.record.Record)
-                        return object;
-                    var message = new $root.compton.types.record.Record();
-                    if (object.meta != null) {
-                        if (typeof object.meta !== "object")
-                            throw TypeError(".compton.types.record.Record.meta: object expected");
-                        message.meta = $root.google.protobuf.Struct.fromObject(object.meta);
-                    }
-                    if (object.payload != null) {
-                        if (typeof object.payload !== "object")
-                            throw TypeError(".compton.types.record.Record.payload: object expected");
-                        message.payload = $root.compton.types.record.Value.fromObject(object.payload);
-                    }
-                    return message;
-                };
-
-                /**
-                 * Creates a plain object from a Record message. Also converts values to other types if specified.
-                 * @function toObject
-                 * @memberof compton.types.record.Record
-                 * @static
-                 * @param {compton.types.record.Record} message Record
-                 * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
-                 */
-                Record.toObject = function toObject(message, options) {
-                    if (!options)
-                        options = {};
-                    var object = {};
-                    if (options.defaults) {
-                        object.meta = null;
-                        object.payload = null;
-                    }
-                    if (message.meta != null && message.hasOwnProperty("meta"))
-                        object.meta = $root.google.protobuf.Struct.toObject(message.meta, options);
-                    if (message.payload != null && message.hasOwnProperty("payload"))
-                        object.payload = $root.compton.types.record.Value.toObject(message.payload, options);
-                    return object;
-                };
-
-                /**
-                 * Converts this Record to JSON.
-                 * @function toJSON
-                 * @memberof compton.types.record.Record
-                 * @instance
-                 * @returns {Object.<string,*>} JSON object
-                 */
-                Record.prototype.toJSON = function toJSON() {
-                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-                };
-
-                return Record;
-            })();
-
-            record.Field = (function() {
-
-                /**
-                 * Properties of a Field.
-                 * @memberof compton.types.record
-                 * @interface IField
-                 * @property {string|null} [name] Field name
-                 * @property {compton.types.record.IValue|null} [value] Field value
-                 */
-
-                /**
-                 * Constructs a new Field.
-                 * @memberof compton.types.record
-                 * @classdesc Represents a Field.
-                 * @implements IField
-                 * @constructor
-                 * @param {compton.types.record.IField=} [properties] Properties to set
-                 */
-                function Field(properties) {
-                    if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                            if (properties[keys[i]] != null)
-                                this[keys[i]] = properties[keys[i]];
-                }
-
-                /**
-                 * Field name.
-                 * @member {string} name
-                 * @memberof compton.types.record.Field
-                 * @instance
-                 */
-                Field.prototype.name = "";
-
-                /**
-                 * Field value.
-                 * @member {compton.types.record.IValue|null|undefined} value
-                 * @memberof compton.types.record.Field
-                 * @instance
-                 */
-                Field.prototype.value = null;
-
-                /**
-                 * Creates a new Field instance using the specified properties.
-                 * @function create
-                 * @memberof compton.types.record.Field
-                 * @static
-                 * @param {compton.types.record.IField=} [properties] Properties to set
-                 * @returns {compton.types.record.Field} Field instance
-                 */
-                Field.create = function create(properties) {
-                    return new Field(properties);
-                };
-
-                /**
-                 * Encodes the specified Field message. Does not implicitly {@link compton.types.record.Field.verify|verify} messages.
-                 * @function encode
-                 * @memberof compton.types.record.Field
-                 * @static
-                 * @param {compton.types.record.IField} message Field message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                Field.encode = function encode(message, writer) {
-                    if (!writer)
-                        writer = $Writer.create();
-                    if (message.name != null && Object.hasOwnProperty.call(message, "name"))
-                        writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
-                    if (message.value != null && Object.hasOwnProperty.call(message, "value"))
-                        $root.compton.types.record.Value.encode(message.value, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
-                    return writer;
-                };
-
-                /**
-                 * Encodes the specified Field message, length delimited. Does not implicitly {@link compton.types.record.Field.verify|verify} messages.
-                 * @function encodeDelimited
-                 * @memberof compton.types.record.Field
-                 * @static
-                 * @param {compton.types.record.IField} message Field message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                Field.encodeDelimited = function encodeDelimited(message, writer) {
-                    return this.encode(message, writer).ldelim();
-                };
-
-                /**
-                 * Decodes a Field message from the specified reader or buffer.
-                 * @function decode
-                 * @memberof compton.types.record.Field
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @param {number} [length] Message length if known beforehand
-                 * @returns {compton.types.record.Field} Field
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                Field.decode = function decode(reader, length) {
-                    if (!(reader instanceof $Reader))
-                        reader = $Reader.create(reader);
-                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.compton.types.record.Field();
-                    while (reader.pos < end) {
-                        var tag = reader.uint32();
-                        switch (tag >>> 3) {
-                        case 1:
-                            message.name = reader.string();
-                            break;
-                        case 3:
-                            message.value = $root.compton.types.record.Value.decode(reader, reader.uint32());
-                            break;
-                        default:
-                            reader.skipType(tag & 7);
-                            break;
-                        }
-                    }
-                    return message;
-                };
-
-                /**
-                 * Decodes a Field message from the specified reader or buffer, length delimited.
-                 * @function decodeDelimited
-                 * @memberof compton.types.record.Field
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @returns {compton.types.record.Field} Field
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                Field.decodeDelimited = function decodeDelimited(reader) {
-                    if (!(reader instanceof $Reader))
-                        reader = new $Reader(reader);
-                    return this.decode(reader, reader.uint32());
-                };
-
-                /**
-                 * Verifies a Field message.
-                 * @function verify
-                 * @memberof compton.types.record.Field
-                 * @static
-                 * @param {Object.<string,*>} message Plain object to verify
-                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
-                 */
-                Field.verify = function verify(message) {
-                    if (typeof message !== "object" || message === null)
-                        return "object expected";
-                    if (message.name != null && message.hasOwnProperty("name"))
-                        if (!$util.isString(message.name))
-                            return "name: string expected";
-                    if (message.value != null && message.hasOwnProperty("value")) {
-                        var error = $root.compton.types.record.Value.verify(message.value);
-                        if (error)
-                            return "value." + error;
-                    }
-                    return null;
-                };
-
-                /**
-                 * Creates a Field message from a plain object. Also converts values to their respective internal types.
-                 * @function fromObject
-                 * @memberof compton.types.record.Field
-                 * @static
-                 * @param {Object.<string,*>} object Plain object
-                 * @returns {compton.types.record.Field} Field
-                 */
-                Field.fromObject = function fromObject(object) {
-                    if (object instanceof $root.compton.types.record.Field)
-                        return object;
-                    var message = new $root.compton.types.record.Field();
-                    if (object.name != null)
-                        message.name = String(object.name);
-                    if (object.value != null) {
-                        if (typeof object.value !== "object")
-                            throw TypeError(".compton.types.record.Field.value: object expected");
-                        message.value = $root.compton.types.record.Value.fromObject(object.value);
-                    }
-                    return message;
-                };
-
-                /**
-                 * Creates a plain object from a Field message. Also converts values to other types if specified.
-                 * @function toObject
-                 * @memberof compton.types.record.Field
-                 * @static
-                 * @param {compton.types.record.Field} message Field
-                 * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
-                 */
-                Field.toObject = function toObject(message, options) {
-                    if (!options)
-                        options = {};
-                    var object = {};
-                    if (options.defaults) {
-                        object.name = "";
-                        object.value = null;
-                    }
-                    if (message.name != null && message.hasOwnProperty("name"))
-                        object.name = message.name;
-                    if (message.value != null && message.hasOwnProperty("value"))
-                        object.value = $root.compton.types.record.Value.toObject(message.value, options);
-                    return object;
-                };
-
-                /**
-                 * Converts this Field to JSON.
-                 * @function toJSON
-                 * @memberof compton.types.record.Field
-                 * @instance
-                 * @returns {Object.<string,*>} JSON object
-                 */
-                Field.prototype.toJSON = function toJSON() {
-                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-                };
-
-                return Field;
-            })();
-
-            record.Value = (function() {
-
-                /**
-                 * Properties of a Value.
-                 * @memberof compton.types.record
-                 * @interface IValue
-                 * @property {compton.types.record.DataType|null} [type] Value type
-                 * @property {Uint8Array|null} [value] Value value
-                 * @property {compton.types.record.IMapValue|null} [map] Value map
-                 * @property {compton.types.record.IArrayValue|null} [array] Value array
-                 * @property {google.protobuf.ITimestamp|null} [timestamp] Value timestamp
-                 */
-
-                /**
-                 * Constructs a new Value.
-                 * @memberof compton.types.record
-                 * @classdesc Represents a Value.
-                 * @implements IValue
-                 * @constructor
-                 * @param {compton.types.record.IValue=} [properties] Properties to set
-                 */
-                function Value(properties) {
-                    if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                            if (properties[keys[i]] != null)
-                                this[keys[i]] = properties[keys[i]];
-                }
-
-                /**
-                 * Value type.
-                 * @member {compton.types.record.DataType} type
-                 * @memberof compton.types.record.Value
-                 * @instance
-                 */
-                Value.prototype.type = 0;
-
-                /**
-                 * Value value.
-                 * @member {Uint8Array} value
-                 * @memberof compton.types.record.Value
-                 * @instance
-                 */
-                Value.prototype.value = $util.newBuffer([]);
-
-                /**
-                 * Value map.
-                 * @member {compton.types.record.IMapValue|null|undefined} map
-                 * @memberof compton.types.record.Value
-                 * @instance
-                 */
-                Value.prototype.map = null;
-
-                /**
-                 * Value array.
-                 * @member {compton.types.record.IArrayValue|null|undefined} array
-                 * @memberof compton.types.record.Value
-                 * @instance
-                 */
-                Value.prototype.array = null;
-
-                /**
-                 * Value timestamp.
-                 * @member {google.protobuf.ITimestamp|null|undefined} timestamp
-                 * @memberof compton.types.record.Value
-                 * @instance
-                 */
-                Value.prototype.timestamp = null;
-
-                /**
-                 * Creates a new Value instance using the specified properties.
-                 * @function create
-                 * @memberof compton.types.record.Value
-                 * @static
-                 * @param {compton.types.record.IValue=} [properties] Properties to set
-                 * @returns {compton.types.record.Value} Value instance
-                 */
-                Value.create = function create(properties) {
-                    return new Value(properties);
-                };
-
-                /**
-                 * Encodes the specified Value message. Does not implicitly {@link compton.types.record.Value.verify|verify} messages.
-                 * @function encode
-                 * @memberof compton.types.record.Value
-                 * @static
-                 * @param {compton.types.record.IValue} message Value message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                Value.encode = function encode(message, writer) {
-                    if (!writer)
-                        writer = $Writer.create();
-                    if (message.type != null && Object.hasOwnProperty.call(message, "type"))
-                        writer.uint32(/* id 1, wireType 0 =*/8).int32(message.type);
-                    if (message.value != null && Object.hasOwnProperty.call(message, "value"))
-                        writer.uint32(/* id 2, wireType 2 =*/18).bytes(message.value);
-                    if (message.map != null && Object.hasOwnProperty.call(message, "map"))
-                        $root.compton.types.record.MapValue.encode(message.map, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
-                    if (message.array != null && Object.hasOwnProperty.call(message, "array"))
-                        $root.compton.types.record.ArrayValue.encode(message.array, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
-                    if (message.timestamp != null && Object.hasOwnProperty.call(message, "timestamp"))
-                        $root.google.protobuf.Timestamp.encode(message.timestamp, writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
-                    return writer;
-                };
-
-                /**
-                 * Encodes the specified Value message, length delimited. Does not implicitly {@link compton.types.record.Value.verify|verify} messages.
-                 * @function encodeDelimited
-                 * @memberof compton.types.record.Value
-                 * @static
-                 * @param {compton.types.record.IValue} message Value message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                Value.encodeDelimited = function encodeDelimited(message, writer) {
-                    return this.encode(message, writer).ldelim();
-                };
-
-                /**
-                 * Decodes a Value message from the specified reader or buffer.
-                 * @function decode
-                 * @memberof compton.types.record.Value
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @param {number} [length] Message length if known beforehand
-                 * @returns {compton.types.record.Value} Value
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                Value.decode = function decode(reader, length) {
-                    if (!(reader instanceof $Reader))
-                        reader = $Reader.create(reader);
-                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.compton.types.record.Value();
-                    while (reader.pos < end) {
-                        var tag = reader.uint32();
-                        switch (tag >>> 3) {
-                        case 1:
-                            message.type = reader.int32();
-                            break;
-                        case 2:
-                            message.value = reader.bytes();
-                            break;
-                        case 3:
-                            message.map = $root.compton.types.record.MapValue.decode(reader, reader.uint32());
-                            break;
-                        case 4:
-                            message.array = $root.compton.types.record.ArrayValue.decode(reader, reader.uint32());
-                            break;
-                        case 5:
-                            message.timestamp = $root.google.protobuf.Timestamp.decode(reader, reader.uint32());
-                            break;
-                        default:
-                            reader.skipType(tag & 7);
-                            break;
-                        }
-                    }
-                    return message;
-                };
-
-                /**
-                 * Decodes a Value message from the specified reader or buffer, length delimited.
-                 * @function decodeDelimited
-                 * @memberof compton.types.record.Value
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @returns {compton.types.record.Value} Value
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                Value.decodeDelimited = function decodeDelimited(reader) {
-                    if (!(reader instanceof $Reader))
-                        reader = new $Reader(reader);
-                    return this.decode(reader, reader.uint32());
-                };
-
-                /**
-                 * Verifies a Value message.
-                 * @function verify
-                 * @memberof compton.types.record.Value
-                 * @static
-                 * @param {Object.<string,*>} message Plain object to verify
-                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
-                 */
-                Value.verify = function verify(message) {
-                    if (typeof message !== "object" || message === null)
-                        return "object expected";
-                    if (message.type != null && message.hasOwnProperty("type"))
-                        switch (message.type) {
-                        default:
-                            return "type: enum value expected";
-                        case 0:
-                        case 1:
-                        case 2:
-                        case 3:
-                        case 4:
-                        case 5:
-                        case 6:
-                        case 7:
-                        case 8:
-                        case 9:
-                            break;
-                        }
-                    if (message.value != null && message.hasOwnProperty("value"))
-                        if (!(message.value && typeof message.value.length === "number" || $util.isString(message.value)))
-                            return "value: buffer expected";
-                    if (message.map != null && message.hasOwnProperty("map")) {
-                        var error = $root.compton.types.record.MapValue.verify(message.map);
-                        if (error)
-                            return "map." + error;
-                    }
-                    if (message.array != null && message.hasOwnProperty("array")) {
-                        var error = $root.compton.types.record.ArrayValue.verify(message.array);
-                        if (error)
-                            return "array." + error;
-                    }
-                    if (message.timestamp != null && message.hasOwnProperty("timestamp")) {
-                        var error = $root.google.protobuf.Timestamp.verify(message.timestamp);
-                        if (error)
-                            return "timestamp." + error;
-                    }
-                    return null;
-                };
-
-                /**
-                 * Creates a Value message from a plain object. Also converts values to their respective internal types.
-                 * @function fromObject
-                 * @memberof compton.types.record.Value
-                 * @static
-                 * @param {Object.<string,*>} object Plain object
-                 * @returns {compton.types.record.Value} Value
-                 */
-                Value.fromObject = function fromObject(object) {
-                    if (object instanceof $root.compton.types.record.Value)
-                        return object;
-                    var message = new $root.compton.types.record.Value();
-                    switch (object.type) {
-                    case "BOOLEAN":
-                    case 0:
-                        message.type = 0;
-                        break;
-                    case "BINARY":
-                    case 1:
-                        message.type = 1;
-                        break;
-                    case "STRING":
-                    case 2:
-                        message.type = 2;
-                        break;
-                    case "UINT64":
-                    case 3:
-                        message.type = 3;
-                        break;
-                    case "INT64":
-                    case 4:
-                        message.type = 4;
-                        break;
-                    case "FLOAT64":
-                    case 5:
-                        message.type = 5;
-                        break;
-                    case "ARRAY":
-                    case 6:
-                        message.type = 6;
-                        break;
-                    case "MAP":
-                    case 7:
-                        message.type = 7;
-                        break;
-                    case "NULL":
-                    case 8:
-                        message.type = 8;
-                        break;
-                    case "TIME":
-                    case 9:
-                        message.type = 9;
-                        break;
-                    }
-                    if (object.value != null)
-                        if (typeof object.value === "string")
-                            $util.base64.decode(object.value, message.value = $util.newBuffer($util.base64.length(object.value)), 0);
-                        else if (object.value.length)
-                            message.value = object.value;
-                    if (object.map != null) {
-                        if (typeof object.map !== "object")
-                            throw TypeError(".compton.types.record.Value.map: object expected");
-                        message.map = $root.compton.types.record.MapValue.fromObject(object.map);
-                    }
-                    if (object.array != null) {
-                        if (typeof object.array !== "object")
-                            throw TypeError(".compton.types.record.Value.array: object expected");
-                        message.array = $root.compton.types.record.ArrayValue.fromObject(object.array);
-                    }
-                    if (object.timestamp != null) {
-                        if (typeof object.timestamp !== "object")
-                            throw TypeError(".compton.types.record.Value.timestamp: object expected");
-                        message.timestamp = $root.google.protobuf.Timestamp.fromObject(object.timestamp);
-                    }
-                    return message;
-                };
-
-                /**
-                 * Creates a plain object from a Value message. Also converts values to other types if specified.
-                 * @function toObject
-                 * @memberof compton.types.record.Value
-                 * @static
-                 * @param {compton.types.record.Value} message Value
-                 * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
-                 */
-                Value.toObject = function toObject(message, options) {
-                    if (!options)
-                        options = {};
-                    var object = {};
-                    if (options.defaults) {
-                        object.type = options.enums === String ? "BOOLEAN" : 0;
-                        if (options.bytes === String)
-                            object.value = "";
-                        else {
-                            object.value = [];
-                            if (options.bytes !== Array)
-                                object.value = $util.newBuffer(object.value);
-                        }
-                        object.map = null;
-                        object.array = null;
-                        object.timestamp = null;
-                    }
-                    if (message.type != null && message.hasOwnProperty("type"))
-                        object.type = options.enums === String ? $root.compton.types.record.DataType[message.type] : message.type;
-                    if (message.value != null && message.hasOwnProperty("value"))
-                        object.value = options.bytes === String ? $util.base64.encode(message.value, 0, message.value.length) : options.bytes === Array ? Array.prototype.slice.call(message.value) : message.value;
-                    if (message.map != null && message.hasOwnProperty("map"))
-                        object.map = $root.compton.types.record.MapValue.toObject(message.map, options);
-                    if (message.array != null && message.hasOwnProperty("array"))
-                        object.array = $root.compton.types.record.ArrayValue.toObject(message.array, options);
-                    if (message.timestamp != null && message.hasOwnProperty("timestamp"))
-                        object.timestamp = $root.google.protobuf.Timestamp.toObject(message.timestamp, options);
-                    return object;
-                };
-
-                /**
-                 * Converts this Value to JSON.
-                 * @function toJSON
-                 * @memberof compton.types.record.Value
-                 * @instance
-                 * @returns {Object.<string,*>} JSON object
-                 */
-                Value.prototype.toJSON = function toJSON() {
-                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-                };
-
-                return Value;
-            })();
-
-            record.MapValue = (function() {
-
-                /**
-                 * Properties of a MapValue.
-                 * @memberof compton.types.record
-                 * @interface IMapValue
-                 * @property {Array.<compton.types.record.IField>|null} [fields] MapValue fields
-                 */
-
-                /**
-                 * Constructs a new MapValue.
-                 * @memberof compton.types.record
-                 * @classdesc Represents a MapValue.
-                 * @implements IMapValue
-                 * @constructor
-                 * @param {compton.types.record.IMapValue=} [properties] Properties to set
-                 */
-                function MapValue(properties) {
-                    this.fields = [];
-                    if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                            if (properties[keys[i]] != null)
-                                this[keys[i]] = properties[keys[i]];
-                }
-
-                /**
-                 * MapValue fields.
-                 * @member {Array.<compton.types.record.IField>} fields
-                 * @memberof compton.types.record.MapValue
-                 * @instance
-                 */
-                MapValue.prototype.fields = $util.emptyArray;
-
-                /**
-                 * Creates a new MapValue instance using the specified properties.
-                 * @function create
-                 * @memberof compton.types.record.MapValue
-                 * @static
-                 * @param {compton.types.record.IMapValue=} [properties] Properties to set
-                 * @returns {compton.types.record.MapValue} MapValue instance
-                 */
-                MapValue.create = function create(properties) {
-                    return new MapValue(properties);
-                };
-
-                /**
-                 * Encodes the specified MapValue message. Does not implicitly {@link compton.types.record.MapValue.verify|verify} messages.
-                 * @function encode
-                 * @memberof compton.types.record.MapValue
-                 * @static
-                 * @param {compton.types.record.IMapValue} message MapValue message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                MapValue.encode = function encode(message, writer) {
-                    if (!writer)
-                        writer = $Writer.create();
-                    if (message.fields != null && message.fields.length)
-                        for (var i = 0; i < message.fields.length; ++i)
-                            $root.compton.types.record.Field.encode(message.fields[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
-                    return writer;
-                };
-
-                /**
-                 * Encodes the specified MapValue message, length delimited. Does not implicitly {@link compton.types.record.MapValue.verify|verify} messages.
-                 * @function encodeDelimited
-                 * @memberof compton.types.record.MapValue
-                 * @static
-                 * @param {compton.types.record.IMapValue} message MapValue message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                MapValue.encodeDelimited = function encodeDelimited(message, writer) {
-                    return this.encode(message, writer).ldelim();
-                };
-
-                /**
-                 * Decodes a MapValue message from the specified reader or buffer.
-                 * @function decode
-                 * @memberof compton.types.record.MapValue
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @param {number} [length] Message length if known beforehand
-                 * @returns {compton.types.record.MapValue} MapValue
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                MapValue.decode = function decode(reader, length) {
-                    if (!(reader instanceof $Reader))
-                        reader = $Reader.create(reader);
-                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.compton.types.record.MapValue();
-                    while (reader.pos < end) {
-                        var tag = reader.uint32();
-                        switch (tag >>> 3) {
-                        case 1:
-                            if (!(message.fields && message.fields.length))
-                                message.fields = [];
-                            message.fields.push($root.compton.types.record.Field.decode(reader, reader.uint32()));
-                            break;
-                        default:
-                            reader.skipType(tag & 7);
-                            break;
-                        }
-                    }
-                    return message;
-                };
-
-                /**
-                 * Decodes a MapValue message from the specified reader or buffer, length delimited.
-                 * @function decodeDelimited
-                 * @memberof compton.types.record.MapValue
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @returns {compton.types.record.MapValue} MapValue
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                MapValue.decodeDelimited = function decodeDelimited(reader) {
-                    if (!(reader instanceof $Reader))
-                        reader = new $Reader(reader);
-                    return this.decode(reader, reader.uint32());
-                };
-
-                /**
-                 * Verifies a MapValue message.
-                 * @function verify
-                 * @memberof compton.types.record.MapValue
-                 * @static
-                 * @param {Object.<string,*>} message Plain object to verify
-                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
-                 */
-                MapValue.verify = function verify(message) {
-                    if (typeof message !== "object" || message === null)
-                        return "object expected";
-                    if (message.fields != null && message.hasOwnProperty("fields")) {
-                        if (!Array.isArray(message.fields))
-                            return "fields: array expected";
-                        for (var i = 0; i < message.fields.length; ++i) {
-                            var error = $root.compton.types.record.Field.verify(message.fields[i]);
-                            if (error)
-                                return "fields." + error;
-                        }
-                    }
-                    return null;
-                };
-
-                /**
-                 * Creates a MapValue message from a plain object. Also converts values to their respective internal types.
-                 * @function fromObject
-                 * @memberof compton.types.record.MapValue
-                 * @static
-                 * @param {Object.<string,*>} object Plain object
-                 * @returns {compton.types.record.MapValue} MapValue
-                 */
-                MapValue.fromObject = function fromObject(object) {
-                    if (object instanceof $root.compton.types.record.MapValue)
-                        return object;
-                    var message = new $root.compton.types.record.MapValue();
-                    if (object.fields) {
-                        if (!Array.isArray(object.fields))
-                            throw TypeError(".compton.types.record.MapValue.fields: array expected");
-                        message.fields = [];
-                        for (var i = 0; i < object.fields.length; ++i) {
-                            if (typeof object.fields[i] !== "object")
-                                throw TypeError(".compton.types.record.MapValue.fields: object expected");
-                            message.fields[i] = $root.compton.types.record.Field.fromObject(object.fields[i]);
-                        }
-                    }
-                    return message;
-                };
-
-                /**
-                 * Creates a plain object from a MapValue message. Also converts values to other types if specified.
-                 * @function toObject
-                 * @memberof compton.types.record.MapValue
-                 * @static
-                 * @param {compton.types.record.MapValue} message MapValue
-                 * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
-                 */
-                MapValue.toObject = function toObject(message, options) {
-                    if (!options)
-                        options = {};
-                    var object = {};
-                    if (options.arrays || options.defaults)
-                        object.fields = [];
-                    if (message.fields && message.fields.length) {
-                        object.fields = [];
-                        for (var j = 0; j < message.fields.length; ++j)
-                            object.fields[j] = $root.compton.types.record.Field.toObject(message.fields[j], options);
-                    }
-                    return object;
-                };
-
-                /**
-                 * Converts this MapValue to JSON.
-                 * @function toJSON
-                 * @memberof compton.types.record.MapValue
-                 * @instance
-                 * @returns {Object.<string,*>} JSON object
-                 */
-                MapValue.prototype.toJSON = function toJSON() {
-                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-                };
-
-                return MapValue;
-            })();
-
-            record.ArrayValue = (function() {
-
-                /**
-                 * Properties of an ArrayValue.
-                 * @memberof compton.types.record
-                 * @interface IArrayValue
-                 * @property {Array.<compton.types.record.IValue>|null} [elements] ArrayValue elements
-                 */
-
-                /**
-                 * Constructs a new ArrayValue.
-                 * @memberof compton.types.record
-                 * @classdesc Represents an ArrayValue.
-                 * @implements IArrayValue
-                 * @constructor
-                 * @param {compton.types.record.IArrayValue=} [properties] Properties to set
-                 */
-                function ArrayValue(properties) {
-                    this.elements = [];
-                    if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                            if (properties[keys[i]] != null)
-                                this[keys[i]] = properties[keys[i]];
-                }
-
-                /**
-                 * ArrayValue elements.
-                 * @member {Array.<compton.types.record.IValue>} elements
-                 * @memberof compton.types.record.ArrayValue
-                 * @instance
-                 */
-                ArrayValue.prototype.elements = $util.emptyArray;
-
-                /**
-                 * Creates a new ArrayValue instance using the specified properties.
-                 * @function create
-                 * @memberof compton.types.record.ArrayValue
-                 * @static
-                 * @param {compton.types.record.IArrayValue=} [properties] Properties to set
-                 * @returns {compton.types.record.ArrayValue} ArrayValue instance
-                 */
-                ArrayValue.create = function create(properties) {
-                    return new ArrayValue(properties);
-                };
-
-                /**
-                 * Encodes the specified ArrayValue message. Does not implicitly {@link compton.types.record.ArrayValue.verify|verify} messages.
-                 * @function encode
-                 * @memberof compton.types.record.ArrayValue
-                 * @static
-                 * @param {compton.types.record.IArrayValue} message ArrayValue message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                ArrayValue.encode = function encode(message, writer) {
-                    if (!writer)
-                        writer = $Writer.create();
-                    if (message.elements != null && message.elements.length)
-                        for (var i = 0; i < message.elements.length; ++i)
-                            $root.compton.types.record.Value.encode(message.elements[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
-                    return writer;
-                };
-
-                /**
-                 * Encodes the specified ArrayValue message, length delimited. Does not implicitly {@link compton.types.record.ArrayValue.verify|verify} messages.
-                 * @function encodeDelimited
-                 * @memberof compton.types.record.ArrayValue
-                 * @static
-                 * @param {compton.types.record.IArrayValue} message ArrayValue message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                ArrayValue.encodeDelimited = function encodeDelimited(message, writer) {
-                    return this.encode(message, writer).ldelim();
-                };
-
-                /**
-                 * Decodes an ArrayValue message from the specified reader or buffer.
-                 * @function decode
-                 * @memberof compton.types.record.ArrayValue
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @param {number} [length] Message length if known beforehand
-                 * @returns {compton.types.record.ArrayValue} ArrayValue
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                ArrayValue.decode = function decode(reader, length) {
-                    if (!(reader instanceof $Reader))
-                        reader = $Reader.create(reader);
-                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.compton.types.record.ArrayValue();
-                    while (reader.pos < end) {
-                        var tag = reader.uint32();
-                        switch (tag >>> 3) {
-                        case 1:
-                            if (!(message.elements && message.elements.length))
-                                message.elements = [];
-                            message.elements.push($root.compton.types.record.Value.decode(reader, reader.uint32()));
-                            break;
-                        default:
-                            reader.skipType(tag & 7);
-                            break;
-                        }
-                    }
-                    return message;
-                };
-
-                /**
-                 * Decodes an ArrayValue message from the specified reader or buffer, length delimited.
-                 * @function decodeDelimited
-                 * @memberof compton.types.record.ArrayValue
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @returns {compton.types.record.ArrayValue} ArrayValue
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                ArrayValue.decodeDelimited = function decodeDelimited(reader) {
-                    if (!(reader instanceof $Reader))
-                        reader = new $Reader(reader);
-                    return this.decode(reader, reader.uint32());
-                };
-
-                /**
-                 * Verifies an ArrayValue message.
-                 * @function verify
-                 * @memberof compton.types.record.ArrayValue
-                 * @static
-                 * @param {Object.<string,*>} message Plain object to verify
-                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
-                 */
-                ArrayValue.verify = function verify(message) {
-                    if (typeof message !== "object" || message === null)
-                        return "object expected";
-                    if (message.elements != null && message.hasOwnProperty("elements")) {
-                        if (!Array.isArray(message.elements))
-                            return "elements: array expected";
-                        for (var i = 0; i < message.elements.length; ++i) {
-                            var error = $root.compton.types.record.Value.verify(message.elements[i]);
-                            if (error)
-                                return "elements." + error;
-                        }
-                    }
-                    return null;
-                };
-
-                /**
-                 * Creates an ArrayValue message from a plain object. Also converts values to their respective internal types.
-                 * @function fromObject
-                 * @memberof compton.types.record.ArrayValue
-                 * @static
-                 * @param {Object.<string,*>} object Plain object
-                 * @returns {compton.types.record.ArrayValue} ArrayValue
-                 */
-                ArrayValue.fromObject = function fromObject(object) {
-                    if (object instanceof $root.compton.types.record.ArrayValue)
-                        return object;
-                    var message = new $root.compton.types.record.ArrayValue();
-                    if (object.elements) {
-                        if (!Array.isArray(object.elements))
-                            throw TypeError(".compton.types.record.ArrayValue.elements: array expected");
-                        message.elements = [];
-                        for (var i = 0; i < object.elements.length; ++i) {
-                            if (typeof object.elements[i] !== "object")
-                                throw TypeError(".compton.types.record.ArrayValue.elements: object expected");
-                            message.elements[i] = $root.compton.types.record.Value.fromObject(object.elements[i]);
-                        }
-                    }
-                    return message;
-                };
-
-                /**
-                 * Creates a plain object from an ArrayValue message. Also converts values to other types if specified.
-                 * @function toObject
-                 * @memberof compton.types.record.ArrayValue
-                 * @static
-                 * @param {compton.types.record.ArrayValue} message ArrayValue
-                 * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
-                 */
-                ArrayValue.toObject = function toObject(message, options) {
-                    if (!options)
-                        options = {};
-                    var object = {};
-                    if (options.arrays || options.defaults)
-                        object.elements = [];
-                    if (message.elements && message.elements.length) {
-                        object.elements = [];
-                        for (var j = 0; j < message.elements.length; ++j)
-                            object.elements[j] = $root.compton.types.record.Value.toObject(message.elements[j], options);
-                    }
-                    return object;
-                };
-
-                /**
-                 * Converts this ArrayValue to JSON.
-                 * @function toJSON
-                 * @memberof compton.types.record.ArrayValue
-                 * @instance
-                 * @returns {Object.<string,*>} JSON object
-                 */
-                ArrayValue.prototype.toJSON = function toJSON() {
-                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-                };
-
-                return ArrayValue;
-            })();
-
-            return record;
-        })();
-
-        return types;
-    })();
-
-    return compton;
 })();
 
 $root.google = (function() {
