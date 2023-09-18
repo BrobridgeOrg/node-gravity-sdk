@@ -18,4 +18,4 @@ npm install gravity-sdk
 
 ## Authors
 
-Copyright(c) 2022 Fred Chien <<fred@brobridge.com>>
+Copyright(c) 2023 Fred Chien <<fred@brobridge.com>>
