@@ -14,11 +14,14 @@ module.exports = class Message extends events.EventEmitter {
 		this.timeNanos = 0;
 		this.product = null;
 		this.data = null;
+		this.wipTimer = null;
 	}
 
 	ack() {
 		if (!this.msg)
 			return;
+
+		clearInterval(this.wipTimer);
 
 //		this.msg.ack();
 		this.channel.ack(this);
@@ -27,6 +30,16 @@ module.exports = class Message extends events.EventEmitter {
 	}
 
 	wait() {
+
+		this.wipTimer = setInterval(() => {
+
+			if (this.msg.didAck)
+				return;
+
+			this.msg.working();
+
+		}, 5000);
+
 		return new Promise((resolve, reject) => {
 			this.once('ack', resolve);
 		})

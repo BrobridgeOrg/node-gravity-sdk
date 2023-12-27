@@ -32,8 +32,10 @@ module.exports = class Subscription extends events.EventEmitter {
 
 		// Preparing subscription options
 		let cOpts = nats.consumerOpts();
-		cOpts.ackAll();
 		cOpts.deliverTo(nats.createInbox());
+		cOpts.ackExplicit();
+		cOpts.manualAck();
+		cOpts.maxAckPending(2000);
 
 		switch(opts.delivery) {
 		case 'all':
