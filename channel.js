@@ -10,19 +10,6 @@ module.exports = class Channel extends events.EventEmitter {
 
 		this.sub = sub;
 		this.jsSub = jsSub;
-		this.ackPending = null;
-		this.ackTimer = null;
-		this.ackInterval = 100;
-	}
-
-	ack(message) {
-		this.ackPending = message;
-		if (this.ackTimer == null) {
-			this.ackTimer = setTimeout(() => {
-				this.ackPending.msg.ack();
-				this.ackTimer = null;
-			}, this.ackInterval)
-		}
 	}
 
 	close() {

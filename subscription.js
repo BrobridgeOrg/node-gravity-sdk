@@ -76,7 +76,10 @@ module.exports = class Subscription extends events.EventEmitter {
 
 		for await (const m of ch) {
 			let task = m.wait();
+
+			// Emit event
 			this.emit('event', m);
+
 			await task;
 			ch.ackPending = m;
 		}

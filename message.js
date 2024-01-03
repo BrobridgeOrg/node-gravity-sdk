@@ -18,26 +18,39 @@ module.exports = class Message extends events.EventEmitter {
 	}
 
 	ack() {
+
+		clearTimeout(this.wipTimer);
+
 		if (!this.msg)
 			return;
 
-		clearInterval(this.wipTimer);
-
-//		this.msg.ack();
-		this.channel.ack(this);
+		this.msg.ack();
 
 		this.emit('ack');
 	}
 
+	keepalive() {
+
+		if (!this.msg)
+			return;
+
+		if (this.msg.didAck)
+			return;
+
+		this.msg.working();
+
+		if (this.msg.didAck)
+			return;
+
+		this.wipTimer = setTimeout(() => {
+			this.keepalive();
+		}, 5000);
+	}
+
 	wait() {
 
-		this.wipTimer = setInterval(() => {
-
-			if (this.msg.didAck)
-				return;
-
-			this.msg.working();
-
+		this.wipTimer = setTimeout(() => {
+			this.keepalive();
 		}, 5000);
 
 		return new Promise((resolve, reject) => {
