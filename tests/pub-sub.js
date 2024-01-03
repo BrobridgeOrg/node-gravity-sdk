@@ -3,8 +3,8 @@ const gravity = require('../');
 const client = new gravity.Client();
 
 (async () => {
-	await client.connect();
 	console.log('Connected to NATS server', client.opts.servers);
+	await client.connect();
 
 	// Getting all products
 	let products = await client.getProducts();
@@ -27,4 +27,6 @@ const client = new gravity.Client();
 		console.log('published new message');
 	}, 1000);
 
-})()
+})().catch((e) => {
+	console.log(e);
+});

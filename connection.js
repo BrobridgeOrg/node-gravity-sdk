@@ -181,7 +181,11 @@ module.exports = class Connection extends events.EventEmitter {
 
 		let resp = JSON.parse(sc.decode(msg.data))
 		if (resp.error) {
-			throw new Error(resp.error);
+
+			let err = new Error(resp.error.message);
+			err.code = resp.error.code;
+
+			throw err
 		}
 
 		return resp
