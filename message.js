@@ -47,13 +47,15 @@ module.exports = class Message extends events.EventEmitter {
 		}, 5000);
 	}
 
+
 	wait() {
-
-		this.wipTimer = setTimeout(() => {
-			this.keepalive();
-		}, 5000);
-
 		return new Promise((resolve, reject) => {
+
+			if (this.msg.didAck) {
+				resolve();
+				return;
+			}
+
 			this.once('ack', resolve);
 		})
 	}
