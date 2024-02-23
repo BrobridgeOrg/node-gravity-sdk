@@ -52,7 +52,7 @@ module.exports = class Channel extends events.EventEmitter {
 		this.jsSub.unsubscribe();
 	}
 
-	pull(batch = 1000, expires = 10000) {
+	pull(batch = 2000, expires = 10000) {
 		this.jsSub.pull({ batch: batch, expires: expires });
 	}
 
@@ -66,7 +66,7 @@ module.exports = class Channel extends events.EventEmitter {
 			}
 
 			// Delay
-			await new Promise(resolve => setTimeout(resolve, 1000));
+			await new Promise(resolve => setTimeout(resolve, 200));
 		}
 
 	}
@@ -81,7 +81,7 @@ module.exports = class Channel extends events.EventEmitter {
 			}
 
 			// Delay
-			await new Promise(resolve => setTimeout(resolve, 1000));
+			await new Promise(resolve => setTimeout(resolve, 200));
 		}
 	}
 
