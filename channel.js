@@ -35,7 +35,7 @@ module.exports = class Channel extends events.EventEmitter {
 		for (let i in this.msgs) {
 			let message = this.msgs[i];
 			if (message.seq == seq) {
-				return messsage;
+				return message;
 			}
 		}
 
