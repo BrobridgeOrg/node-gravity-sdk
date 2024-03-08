@@ -32,7 +32,7 @@ module.exports = class Subscription extends events.EventEmitter {
 		let conn = this.product.client.getConnection();
 		let js = conn.jetstream();
 
-		if (partition <= 0) {
+		if (partition < 0) {
 			// Receiving from all partitions by default
 			partition = '*';
 		} else {
