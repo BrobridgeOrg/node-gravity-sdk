@@ -14,12 +14,9 @@ module.exports = class Message extends events.EventEmitter {
 		this.timeNanos = 0;
 		this.product = null;
 		this.data = null;
-		this.wipTimer = null;
 	}
 
 	ack() {
-
-		clearTimeout(this.wipTimer);
 
 		if (!this.msg)
 			return;
@@ -38,15 +35,7 @@ module.exports = class Message extends events.EventEmitter {
 			return;
 
 		this.msg.working();
-
-		if (this.msg.didAck)
-			return;
-
-		this.wipTimer = setTimeout(() => {
-			this.keepalive();
-		}, 5000);
 	}
-
 
 	wait() {
 		return new Promise((resolve, reject) => {

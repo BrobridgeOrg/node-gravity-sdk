@@ -13,6 +13,7 @@ module.exports = class Channel extends events.EventEmitter {
 		this.jsSub = jsSub;
 		this.msgs = [];
 		this.cursor = -1;
+		this.wipTimer = null;
 	}
 
 	next() {
@@ -42,12 +43,25 @@ module.exports = class Channel extends events.EventEmitter {
 		return null;
 	}
 
+  keepalive() {
+
+    for (let cur = this.cursor + 1; cur < this.msgs.length; cur++) {
+      let msg = this.msgs[cur];
+      msg.keepalive();
+    }
+
+		this.wipTimer = setTimeout(() => {
+			this.keepalive();
+		}, 5000);
+  }
+
 	clear() {
 		this.cursor = -1;
 		this.msgs = [];
 	}
 
 	close() {
+    clearTimeout(this.wipTimer);
 		this.closed = true;
 		this.jsSub.unsubscribe();
 	}
@@ -91,6 +105,10 @@ module.exports = class Channel extends events.EventEmitter {
 			this.emit('closed');
 		});
 
+    // Keepalive
+    clearTimeout(this.wipTimer);
+    this.keepalive();
+
 		for await (const m of this.jsSub) {
 
 			let message = this.getMessage(m.seq);
@@ -118,9 +136,6 @@ module.exports = class Channel extends events.EventEmitter {
 
 				// Push message to the list
 				this.msgs.push(message);
-
-				// Keepalive
-				message.keepalive();
 
 				continue;
 			}
