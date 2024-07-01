@@ -21,20 +21,24 @@ module.exports = class Product extends events.EventEmitter {
 
 	async subscribe(partitions, opts) {
 
-		// Preparing subscription on server
-		let js = this.client.conn.jetstream()
 
-		// Preparing payload
-		let api = util.format(productAPI, this.client.getDomain(), "PREPARE_SUBSCRIPTION");
-		let payload = JSON.stringify({
-			product: this.name,
-		});
+		// Preparing subscription if token is given
+		if (this.client.token) {
 
-		let resp = await this.client.request(api, payload);
+			let js = this.client.conn.jetstream()
 
-		// Check response
-		if (resp.error) {
-			throw resp.error;
+			// Preparing payload
+			let api = util.format(productAPI, this.client.getDomain(), "PREPARE_SUBSCRIPTION");
+			let payload = JSON.stringify({
+				product: this.name,
+			});
+
+			let resp = await this.client.request(api, payload);
+
+			// Check response
+			if (resp.error) {
+				throw resp.error;
+			}
 		}
 
 		if (!partitions) {

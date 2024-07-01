@@ -15,12 +15,24 @@ module.exports = class Subscription extends events.EventEmitter {
 		this.channels = {};
 	}
 
+	async assertConsumer(consumerName, opts = {}) {
+
+		let conn = this.product.client.getConnection();
+		let js = conn.jetstream();
+
+		if (!consumerName) {
+			// Emphermeral consumer
+		}
+
+		const c = await js.consumers.get(this.product.settings.stream, consumerName);
+	}
+
 	async _fetch(partition, opts = {}) {
 
 		let conn = this.product.client.getConnection();
 		let js = conn.jetstream();
 
-		if (partition <= 0) {
+		if (partition < 0) {
 			// Receiving from all partitions by default
 			partition = '*';
 		} else {
@@ -32,7 +44,7 @@ module.exports = class Subscription extends events.EventEmitter {
 
 		// Preparing subscription options
 		let cOpts = nats.consumerOpts();
-		cOpts.deliverTo(nats.createInbox());
+		//cOpts.deliverTo(nats.createInbox());
 		cOpts.ackExplicit();
 		cOpts.manualAck();
 		cOpts.maxAckPending(2000);
@@ -57,7 +69,8 @@ module.exports = class Subscription extends events.EventEmitter {
 		}
 
 		// Starting subscribe to data product
-		let sub = await js.subscribe(subject, cOpts);
+		//let sub = await js.subscribe(subject, cOpts);
+		let sub = await js.pullSubscribe(subject, cOpts);
 
 		// Preparing channel
 		return new Channel(this, sub);
@@ -74,14 +87,20 @@ module.exports = class Subscription extends events.EventEmitter {
 		let ch = await this._fetch(partition, _opts);
 		this.channels[partition] = ch;
 
-		for await (const m of ch) {
-			let task = m.wait();
+		ch.start();
 
-			// Emit event
-			this.emit('event', m);
+		while(true) {
 
-			await task;
-			ch.ackPending = m;
+			try {
+				let m = await ch.fetch();
+
+				this.emit('event', m);
+
+				// Wait for message to be acked
+				await m.wait();
+			} catch(e) {
+				break;
+			}
 		}
 
 		// Remove subscription from list

@@ -65,7 +65,7 @@ module.exports = class Client extends events.EventEmitter {
 		return this.conn;
 	}
 
-	async publish(eventName, payload) {
+	async publish(eventName, payload, opts) {
 
 		// Prparing subject
 		let subject = util.format(domainEventSubject, this.getDomain(), eventName);
@@ -78,7 +78,7 @@ module.exports = class Client extends events.EventEmitter {
 		let js = this.conn.jetstream();
 		let sc = nats.StringCodec();
 
-		await js.publish(subject, sc.encode(msg));
+		await js.publish(subject, sc.encode(msg), opts);
 	}
 
 	async getProduct(name) {
