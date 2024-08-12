@@ -49,7 +49,7 @@ module.exports = class Product extends events.EventEmitter {
 
 		if (partitions.length == 0) {
 			// Subscribe to all partitions
-			sub.subscribe(0, opts || {});
+			sub.subscribe(-1, opts || {});
 			return sub;
 		}
 
