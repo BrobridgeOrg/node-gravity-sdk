@@ -2,6 +2,9 @@ const events = require('events');
 
 const Message = require('./message');
 const Types = require('./types');
+const BatchSize = 1000;
+const MsgExpire = 10000;
+let checkCnt = 1;
 
 module.exports = class Channel extends events.EventEmitter {
 
@@ -14,6 +17,12 @@ module.exports = class Channel extends events.EventEmitter {
 		this.msgs = [];
 		this.cursor = -1;
 		this.wipTimer = null;
+		this.batchMode = true;
+		this.eventCount = 0;
+		this.isLastBatchReturned = false;
+		this.lastBufferSize = 0;
+		this.unChangedCount = 0;
+		this.maxUnchangedCount = 3;
 	}
 
 	next() {
@@ -58,22 +67,24 @@ module.exports = class Channel extends events.EventEmitter {
 	clear() {
 		this.cursor = -1;
 		this.msgs = [];
+		this.lastBufferSize = 0;
+		this.unChangedCount = 0;
 	}
 
 	close() {
-    clearTimeout(this.wipTimer);
+    	clearTimeout(this.wipTimer);
 		this.closed = true;
 		this.jsSub.unsubscribe();
 	}
 
-	pull(batch = 2000, expires = 10000) {
+	pull(batch = 2000, expires = MsgExpire) {
 		this.jsSub.pull({ batch: batch, expires: expires });
 	}
 
 	async fetch() {
 
 		while(!this.closed) {
-
+			console.log(this.msgs.length);
 			let m = this.next();
 			if (m != null) {
 				return m;
@@ -84,6 +95,51 @@ module.exports = class Channel extends events.EventEmitter {
 		}
 
 	}
+
+	async batchFetch() {
+		this.batchMode = true;
+		if(!this.closed) {
+			// console.log("total msgs length:",this.msgs.length);
+			// console.log("cursor is :",this.cursor);
+			// console.log("isLastBatchReturned:",this.isLastBatchReturned);
+			// console.log("now in batch array:",this.msgs.length);
+			if (this.msgs.length > 0 && this.msgs.length <  BatchSize && !this.isLastBatchReturned){
+					if (this.msgs.length == this.lastBufferSize){
+						this.unChangedCount++;
+					}else{
+						this.unChangedCount = 0;
+					}
+
+					this.lastBufferSize = this.msgs.length;
+
+					if(this.unChangedCount >= this.maxUnchangedCount){
+						this.isLastBatchReturned = true;
+						let temp = this.msgs;
+						this.clear();
+						return temp
+					}
+
+					await new Promise(resolve => setTimeout(resolve, 200));
+					return null;
+			}else if (this.msgs.length >= BatchSize){
+				if (this.cursor < 0){
+					this.cursor = 0;
+				}
+
+				this.cursor = this.cursor + BatchSize;
+				// let temp = this.msgs.slice(this.cursor,Math.min(nextCursor, this.msgs.length));
+				let temp = this.msgs.slice(0,BatchSize);
+				this.msgs = this.msgs.slice(BatchSize);
+				this.isLastBatchReturned = false;
+				return temp;
+			}else{
+				await new Promise(resolve => setTimeout(resolve, 200));
+				return null;
+			}
+		}
+
+	}
+
 
 	async poll() {
 
@@ -136,7 +192,11 @@ module.exports = class Channel extends events.EventEmitter {
 
 				// Push message to the list
 				this.msgs.push(message);
+				if (this.batchMode){
+					m.ack();
+				}
 
+				this.eventCount = this.sub.product.states.eventCount;
 				continue;
 			}
 

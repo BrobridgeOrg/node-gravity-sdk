@@ -31,6 +31,7 @@ module.exports = class Subscription extends events.EventEmitter {
 
 		let conn = this.product.client.getConnection();
 		let js = conn.jetstream();
+		// let jsm = await conn.nc.jetstreamManager()
 
 		if (partition < 0) {
 			// Receiving from all partitions by default
@@ -72,6 +73,12 @@ module.exports = class Subscription extends events.EventEmitter {
 		//let sub = await js.subscribe(subject, cOpts);
 		let sub = await js.pullSubscribe(subject, cOpts);
 
+		// const consumers = await jsm.consumers.list(this.product.settings.stream).next();
+		// consumers.forEach((ci) => {
+		// 	console.log("consumer:");
+		// 	console.log(ci);
+		// });
+
 		// Preparing channel
 		return new Channel(this, sub);
 	}
@@ -89,18 +96,29 @@ module.exports = class Subscription extends events.EventEmitter {
 
 		ch.start();
 
-		while(true) {
-
-			try {
-				let m = await ch.fetch();
-
-				this.emit('event', m);
-
-				// Wait for message to be acked
-				await m.wait();
-			} catch(e) {
-				break;
-			}
+		while(!ch.closed) {
+				let m;
+				try {
+					if(!opts.batchMode){
+						m = await ch.fetch();
+						this.emit('event', m);
+						await m.wait();
+					}else{
+						m = await ch.batchFetch();
+						if(m){
+							if (m.constructor == Array && m.length > 0){
+								console.log("seq from:",m[0].seq,"->",m[m.length-1].seq,"length:",m.length);
+								this.emit('event', m);
+								await m[m.length-1].wait();
+							}
+						}else{
+							console.log("No data available, waiting for new data...");
+						}
+					}
+				} catch(e) {
+					console.log(e);
+					break;
+				}
 		}
 
 		// Remove subscription from list
