@@ -2,9 +2,7 @@ const events = require('events');
 
 const Message = require('./message');
 const Types = require('./types');
-const BatchSize = 1000;
 const MsgExpire = 10000;
-let checkCnt = 1;
 
 module.exports = class Channel extends events.EventEmitter {
 
@@ -23,6 +21,7 @@ module.exports = class Channel extends events.EventEmitter {
 		this.lastBufferSize = 0;
 		this.unChangedCount = 0;
 		this.maxUnchangedCount = 3;
+		this.batchSize = sub.batchSize;
 	}
 
 	next() {
@@ -82,7 +81,6 @@ module.exports = class Channel extends events.EventEmitter {
 	}
 
 	async fetch() {
-
 		while(!this.closed) {
 			console.log(this.msgs.length);
 			let m = this.next();
@@ -103,7 +101,7 @@ module.exports = class Channel extends events.EventEmitter {
 			// console.log("cursor is :",this.cursor);
 			// console.log("isLastBatchReturned:",this.isLastBatchReturned);
 			// console.log("now in batch array:",this.msgs.length);
-			if (this.msgs.length > 0 && this.msgs.length <  BatchSize && !this.isLastBatchReturned){
+			if (this.msgs.length > 0 && this.msgs.length <  this.batchSize && !this.isLastBatchReturned){
 					if (this.msgs.length == this.lastBufferSize){
 						this.unChangedCount++;
 					}else{
@@ -121,15 +119,15 @@ module.exports = class Channel extends events.EventEmitter {
 
 					await new Promise(resolve => setTimeout(resolve, 200));
 					return null;
-			}else if (this.msgs.length >= BatchSize){
+			}else if (this.msgs.length >= this.batchSize){
 				if (this.cursor < 0){
 					this.cursor = 0;
 				}
 
-				this.cursor = this.cursor + BatchSize;
+				this.cursor = this.cursor + this.batchSize;
 				// let temp = this.msgs.slice(this.cursor,Math.min(nextCursor, this.msgs.length));
-				let temp = this.msgs.slice(0,BatchSize);
-				this.msgs = this.msgs.slice(BatchSize);
+				let temp = this.msgs.slice(0,this.batchSize);
+				this.msgs = this.msgs.slice(this.batchSize);
 				this.isLastBatchReturned = false;
 				return temp;
 			}else{
