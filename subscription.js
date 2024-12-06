@@ -80,6 +80,7 @@ module.exports = class Subscription extends events.EventEmitter {
 		// });
 
 		// Preparing channel
+		this.batchSize = opts.batchSize;
 		return new Channel(this, sub);
 	}
 
@@ -101,8 +102,12 @@ module.exports = class Subscription extends events.EventEmitter {
 				try {
 					if(!opts.batchMode){
 						m = await ch.fetch();
-						this.emit('event', m);
-						await m.wait();
+						if(m){
+							this.emit('event', m);
+							await m.wait();
+						}else{
+							console.log("No data available, waiting for new data...");
+						}
 					}else{
 						m = await ch.batchFetch();
 						if(m){
