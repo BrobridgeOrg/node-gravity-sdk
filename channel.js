@@ -97,29 +97,7 @@ module.exports = class Channel extends events.EventEmitter {
 	async batchFetch() {
 		this.batchMode = true;
 		if(!this.closed) {
-			// console.log("total msgs length:",this.msgs.length);
-			// console.log("cursor is :",this.cursor);
-			// console.log("isLastBatchReturned:",this.isLastBatchReturned);
-			// console.log("now in batch array:",this.msgs.length);
-			if (this.msgs.length > 0 && this.msgs.length <  this.batchSize && !this.isLastBatchReturned){
-					if (this.msgs.length == this.lastBufferSize){
-						this.unChangedCount++;
-					}else{
-						this.unChangedCount = 0;
-					}
-
-					this.lastBufferSize = this.msgs.length;
-
-					if(this.unChangedCount >= this.maxUnchangedCount){
-						this.isLastBatchReturned = true;
-						let temp = this.msgs;
-						this.clear();
-						return temp
-					}
-
-					await new Promise(resolve => setTimeout(resolve, 200));
-					return null;
-			}else if (this.msgs.length >= this.batchSize){
+			if (this.msgs.length >= this.batchSize){
 				if (this.cursor < 0){
 					this.cursor = 0;
 				}
@@ -129,6 +107,32 @@ module.exports = class Channel extends events.EventEmitter {
 				let temp = this.msgs.slice(0,this.batchSize);
 				this.msgs = this.msgs.slice(this.batchSize);
 				this.isLastBatchReturned = false;
+				return temp;
+			}else if (this.msgs.length > 0 && this.msgs.length <  this.batchSize && !this.isLastBatchReturned){
+				if (this.msgs.length == this.lastBufferSize){
+					this.unChangedCount++;
+				}else{
+					this.unChangedCount = 0;
+				}
+
+				this.lastBufferSize = this.msgs.length;
+
+				if(this.unChangedCount >= this.maxUnchangedCount){
+					this.isLastBatchReturned = true;
+					let temp = this.msgs;
+					this.clear();
+					return temp
+				}
+
+				// let data = await new Promise(resolve => setTimeout(()=>{
+				// 	console.log("timeout promise and msgs length:",this.msgs.length);
+				// 	let temp = this.msgs;
+				// 	this.clear();
+				// 	resolve(temp)
+				// }, 200));
+				// return data;
+				let temp = this.msgs;
+				this.clear();
 				return temp;
 			}else{
 				await new Promise(resolve => setTimeout(resolve, 200));

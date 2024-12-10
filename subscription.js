@@ -47,6 +47,7 @@ module.exports = class Subscription extends events.EventEmitter {
 		let cOpts = nats.consumerOpts();
 		//cOpts.deliverTo(nats.createInbox());
 		cOpts.ackExplicit();
+		// cOpts.ackAll();
 		cOpts.manualAck();
 		cOpts.maxAckPending(2000);
 
@@ -117,7 +118,7 @@ module.exports = class Subscription extends events.EventEmitter {
 								await m[m.length-1].wait();
 							}
 						}else{
-							console.log("No data available, waiting for new data...");
+							console.log("No data available, waiting for new batch data...");
 						}
 					}
 				} catch(e) {
