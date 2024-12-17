@@ -22,8 +22,6 @@ module.exports = class Channel extends events.EventEmitter {
 		this.unChangedCount = 0;
 		this.maxUnchangedCount = 3;
 		this.batchSize = sub.batchSize;
-		this.temp = [];
-		this.count = 0;
 	}
 
 	next() {
@@ -84,7 +82,6 @@ module.exports = class Channel extends events.EventEmitter {
 
 	async fetch() {
 		while(!this.closed) {
-			console.log(this.msgs.length);
 			let m = this.next();
 			if (m != null) {
 				return m;

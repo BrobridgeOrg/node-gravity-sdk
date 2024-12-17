@@ -17,18 +17,13 @@ module.exports = class Consumer extends events.EventEmitter {
     }
 
     async unsubscribe(){
-       try {
-            await new Promise(resolve => setTimeout(resolve, 100));
+        try {
             this.iter.close();
-            const info = await this.jsm.consumers.info(this.streamName,this.consumerName);
-
-            // check pending message before deleting consumer
-            if (info.num_pending === 0 && info.num_ack_pending === 0){
-                await this.jsm.consumers.delete(this.streamName,this.consumerName);
-            }
-       } catch (error) {
-            console.error("Unsubscribe error:", error);
-       }
+            await new Promise(resolve => setTimeout(resolve, 500));
+            this.consumerName = "";
+        } catch (error) {
+                console.error("Unsubscribe error:", error);
+        }
     }
 
     async fetch(batch,expires){
@@ -47,10 +42,13 @@ module.exports = class Consumer extends events.EventEmitter {
 
     async initialize(){
         try {
+            if(this.consumerName){
+                await this.unsubscribe();
+            }
+
+            await new Promise(resolve=>setTimeout(resolve,1000));
             let ci = await this.jsm.consumers.add(this.streamName,this.cOpts);
             this.consumerName = ci.name;
-            console.log("consumer info:");
-            console.log(ci);
         } catch (error) {
             console.log("failed to initialize consumer: ",error);
             return error;
@@ -133,17 +131,6 @@ class CosumerQueuedIteratorImpl {
             this.queue.push(msg);
         }
     }
-
-    // perform all batch messages
-    // pushBatch(messages) {
-    //     if (Array.isArray(messages)) {
-    //         messages.forEach(msg => this.push(msg));
-    //     } else if (messages && typeof messages[Symbol.iterator] === 'function') {
-    //         for (const msg of messages) {
-    //             this.push(msg);
-    //         }
-    //     }
-    // }
 
     close() {
         this.done = true;
