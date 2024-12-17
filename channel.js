@@ -6,12 +6,12 @@ const MsgExpire = 10000;
 
 module.exports = class Channel extends events.EventEmitter {
 
-	constructor(sub, jsSub) {
+	constructor(sub, consumer) {
 		super();
 
 		this.closed = false;
 		this.sub = sub;
-		this.jsSub = jsSub;
+		this.consumer = consumer;
 		this.msgs = [];
 		this.cursor = -1;
 		this.wipTimer = null;
@@ -22,6 +22,8 @@ module.exports = class Channel extends events.EventEmitter {
 		this.unChangedCount = 0;
 		this.maxUnchangedCount = 3;
 		this.batchSize = sub.batchSize;
+		this.temp = [];
+		this.count = 0;
 	}
 
 	next() {
@@ -73,11 +75,11 @@ module.exports = class Channel extends events.EventEmitter {
 	close() {
     	clearTimeout(this.wipTimer);
 		this.closed = true;
-		this.jsSub.unsubscribe();
+		this.consumer.unsubscribe();
 	}
 
-	pull(batch = 2000, expires = MsgExpire) {
-		this.jsSub.pull({ batch: batch, expires: expires });
+	async pull(batch = 2000, expires = MsgExpire) {
+		this.consumer.fetch(batch,expires,this);
 	}
 
 	async fetch() {
@@ -124,13 +126,6 @@ module.exports = class Channel extends events.EventEmitter {
 					return temp
 				}
 
-				// let data = await new Promise(resolve => setTimeout(()=>{
-				// 	console.log("timeout promise and msgs length:",this.msgs.length);
-				// 	let temp = this.msgs;
-				// 	this.clear();
-				// 	resolve(temp)
-				// }, 200));
-				// return data;
 				let temp = this.msgs;
 				this.clear();
 				return temp;
@@ -149,7 +144,8 @@ module.exports = class Channel extends events.EventEmitter {
 
 			if (this.msgs.length == 0) {
 				// pull new messages if no messages
-				this.pull();
+				console.log("polling...")
+				await this.pull();
 			}
 
 			// Delay
@@ -166,44 +162,57 @@ module.exports = class Channel extends events.EventEmitter {
     // Keepalive
     clearTimeout(this.wipTimer);
     this.keepalive();
+		// for ack all use by the last message in iterator
+		let lastMsg = null;
 
-		for await (const m of this.jsSub) {
+		try {
+			for await (const m of this.consumer.iter) {
+				if (!m) continue;  // 跳過空消息
 
-			let message = this.getMessage(m.seq);
-			if (message == null) {
+				let message = this.getMessage(m.seq);
+				if (message == null) {
+					lastMsg = m;
+					// Create a new message
+					message = new Message();
+					message.subscription = this.sub;
+					message.channel = this;
+					message.product = this.sub.product;
+					message.subject = m.subject;
+					message.msg = m;
+					message.seq = m.seq;
 
-				// Create a new message
-				message = new Message()
-				message.subscription = this.sub;
-				message.channel = this;
-				message.product = this.sub.product;
-				message.subject = m.subject;
-				message.msg = m;
-				message.seq = m.seq;
+					// Figure time
+					let nano = message.msg.di.timestampNanos % 1000;
+					let ts = Math.floor(message.msg.di.timestampNanos / 1000000);
+					let d = new Date(ts);
+					message.time = d;
+					message.timeNano = nano;
 
-				// Figure time
-				let nano = message.msg.di.timestampNanos % 1000;
-				let ts = Math.floor(message.msg.di.timestampNanos / 1000000);
-				let d = new Date(ts);
-				message.time = d;
-				message.timeNano = nano;
+					// Convert data to JavaScript Object
+					let pe = Types.gravity.sdk.types.product_event.ProductEvent.decode(message.msg.data);
+					message.data = pe.toJSObject();
 
-				// Convert data to JavaScript Object
-				let pe = Types.gravity.sdk.types.product_event.ProductEvent.decode(message.msg.data);
-				message.data = pe.toJSObject();
+					// Push message to the list
+					this.msgs.push(message);
 
-				// Push message to the list
-				this.msgs.push(message);
-				if (this.batchMode){
-					m.ack();
+					this.eventCount = this.sub.product.states.eventCount;
+					continue;
 				}
 
-				this.eventCount = this.sub.product.states.eventCount;
-				continue;
+				// Update internal instance
+				message.msg = m;
+
 			}
 
-			// Update internal instance
-			message.msg = m;
+			if (lastMsg && this.batchMode) {
+				// for the last message acka all
+				await lastMsg.ack();
+			}
+
+		} catch (error) {
+			console.error("Error processing messages:", error);
+			await lastMsg.nak();
 		}
+
 	}
 }

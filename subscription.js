@@ -3,6 +3,7 @@ const util = require('util');
 const nats = require('nats');
 
 const Channel = require('./channel');
+const Consumer = require('./consumer');
 
 const productEventSubject = "$GVT.%s.DP.%s.%s.EVENT.>"
 
@@ -31,7 +32,7 @@ module.exports = class Subscription extends events.EventEmitter {
 
 		let conn = this.product.client.getConnection();
 		let js = conn.jetstream();
-		// let jsm = await conn.nc.jetstreamManager()
+		let jsm = await conn.nc.jetstreamManager()
 
 		if (partition < 0) {
 			// Receiving from all partitions by default
@@ -44,22 +45,26 @@ module.exports = class Subscription extends events.EventEmitter {
 		let subject = util.format(productEventSubject, this.product.client.getDomain(), this.product.name, partition);
 
 		// Preparing subscription options
-		let cOpts = nats.consumerOpts();
+		let cOpts = {
+			"ack_policy":nats.AckPolicy.All,
+			"max_ack_pending":2000,
+			"filter_subject":subject
+		};
 		//cOpts.deliverTo(nats.createInbox());
-		cOpts.ackExplicit();
-		// cOpts.ackAll();
-		cOpts.manualAck();
-		cOpts.maxAckPending(2000);
-
 		switch(opts.delivery) {
 		case 'all':
-			cOpts.startSequence(1);
+			// cOpts.startSequence(1);
+			cOpts.deliver_policy = nats.DeliverPolicy.StartSequence;
+			cOpts.opt_start_seq = 1;
 			break;
 		case 'startSeq':
-			cOpts.startSequence(Number(opts.seq) || 1);
+			// cOpts.startSequence(Number(opts.seq) || 1);
+			cOpts.deliver_policy = nats.DeliverPolicy.StartSequence;
+			cOpts.opt_start_seq = Number(opts.seq) || 1;
 			break;
 		default:
-			cOpts.deliverNew();
+			// cOpts.deliverNew();
+			cOpts.deliver_policy = nats.DeliverPolicy.New;
 			break;
 		}
 
@@ -67,22 +72,16 @@ module.exports = class Subscription extends events.EventEmitter {
 
 		// Set durable to use persistent consumer if token is enabled
 		if (connStates.durable) {
-			cOpts.durable(connStates.durable);
+			cOpts.durable_name = connStates.durable;
 		}
 
-		// Starting subscribe to data product
-		//let sub = await js.subscribe(subject, cOpts);
-		let sub = await js.pullSubscribe(subject, cOpts);
+		// Create self-defined consumer for specified ack policy
+		let consumer = new Consumer(js,jsm,cOpts,this.product.settings.stream);
+		await consumer.initialize();
 
-		// const consumers = await jsm.consumers.list(this.product.settings.stream).next();
-		// consumers.forEach((ci) => {
-		// 	console.log("consumer:");
-		// 	console.log(ci);
-		// });
-
-		// Preparing channel
 		this.batchSize = opts.batchSize;
-		return new Channel(this, sub);
+		// Preparing channel
+		return new Channel(this, consumer);
 	}
 
 	async subscribe(partition, opts = {}) {
