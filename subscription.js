@@ -48,7 +48,9 @@ module.exports = class Subscription extends events.EventEmitter {
 		let cOpts = {
 			"ack_policy":nats.AckPolicy.All,
 			"max_ack_pending":2000,
-			"filter_subject":subject
+			"max_deliver": 5,
+			"filter_subject":subject,
+			"replay_policy": 'original'
 		};
 		//cOpts.deliverTo(nats.createInbox());
 		switch(opts.delivery) {
@@ -120,8 +122,8 @@ module.exports = class Subscription extends events.EventEmitter {
 							console.log("No data available, waiting for new batch data...");
 						}
 					}
-				} catch(e) {
-					console.log(e);
+				} catch(error) {
+					console.log("subscribe error: ",error);
 					break;
 				}
 		}

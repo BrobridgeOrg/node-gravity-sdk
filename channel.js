@@ -208,7 +208,7 @@ module.exports = class Channel extends events.EventEmitter {
 
 		} catch (error) {
 			console.error("Error processing messages:", error);
-			await lastMsg.nak();
+			await lastMsg.nak(1000);
 		}
 
 	}
