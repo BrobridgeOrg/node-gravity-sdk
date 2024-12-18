@@ -26,18 +26,41 @@ module.exports = class Consumer extends events.EventEmitter {
         }
     }
 
-    async fetch(batch,expires){
+    async fetch(batch, expires) {
         try {
-            let jsFetch =  await this.js.fetch(this.streamName,this.consumerName,{ batch: batch, expires: expires });
-            for await (const msg of jsFetch) {
-                this.iter.push(msg);
+
+            await new Promise((resolve) => setTimeout(resolve, 500));
+
+            if (!this.consumerName) {
+                throw new Error("Consumer not initialized");
             }
 
+            let jsFetch = await this.js.fetch(this.streamName, this.consumerName, {
+                batch: batch,
+                expires: expires
+            });
+
+            try {
+                for await (const msg of jsFetch) {
+                    this.iter.push(msg);
+                }
+            } catch (fetchError) {
+                // no return when getting connection closed
+                if (fetchError.code === 'CONNECTION_CLOSED') {
+                    console.log("Connection closed during message processing");
+                    return;
+                }
+                throw fetchError;
+            }
         } catch (error) {
+            // no return when getting connection closed
+            if (error.code === 'CONNECTION_CLOSED') {
+                console.log("Connection closed before fetch");
+                return;
+            }
             console.error("fetch error:", error);
             throw error;
         }
-
     }
 
     async initialize(){
