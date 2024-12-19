@@ -21,7 +21,7 @@ module.exports = class Channel extends events.EventEmitter {
 		this.lastBufferSize = 0;
 		this.unChangedCount = 0;
 		this.maxUnchangedCount = 3;
-		this.batchSize = sub.batchSize;
+		this.batchSize = Number(sub.batchSize);
 	}
 
 	next() {
