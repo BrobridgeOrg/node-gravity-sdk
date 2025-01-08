@@ -51,7 +51,7 @@ module.exports = class Subscription extends events.EventEmitter {
 			// "max_deliver": 5,
 			"filter_subject":subject,
 			"ack_wait": 30000,
-			"max_deliver": 1, 
+			"max_deliver": 1,
 			"replay_policy": 'instant'
 		};
 		//cOpts.deliverTo(nats.createInbox());
@@ -77,6 +77,9 @@ module.exports = class Subscription extends events.EventEmitter {
 		// Set durable to use persistent consumer if token is enabled
 		if (connStates.durable) {
 			cOpts.durable_name = connStates.durable;
+		}else{
+			// assigned default if no durable name
+			cOpts.durable_name = `consumer-${Date.now()}`
 		}
 
 		// Create self-defined consumer for specified ack policy

@@ -112,20 +112,13 @@ module.exports = class Channel extends events.EventEmitter {
 		console.log("batchSize:",this.batchSize,"msgsLength:",this.msgs.length);
 		if(!this.closed) {
 			if (this.msgs.length >= this.batchSize){
-				if (this.cursor < 0){
-					this.cursor = 0;
-				}
-
-				this.cursor = this.cursor + this.batchSize;
 				// let temp = this.msgs.slice(this.cursor,Math.min(nextCursor, this.msgs.length));
 				let temp = this.msgs.slice(0,this.batchSize);
 				this.msgs = this.msgs.slice(this.batchSize);
-				this.isLastBatchReturned = false;
-				console.log("send and msgs length:",this.msgs.length);
-				console.log("call send and isLastBatchReturned and length :",this.isLastBatchReturned,this.msgs.length);
+				// this.isLastBatchReturned = false;
+				console.log(`Sending full batch (${temp.length} messages)`);
 				return temp;
-			}
-			else if (this.msgs.length > 0 && this.msgs.length <  this.batchSize && !this.isLastBatchReturned){
+			}else if (this.msgs.length > 0 && this.msgs.length <  this.batchSize){
 				if (this.msgs.length == this.lastBufferSize){
 					this.unChangedCount++;
 				}else{
@@ -135,17 +128,16 @@ module.exports = class Channel extends events.EventEmitter {
 				this.lastBufferSize = this.msgs.length;
 
 				if(this.unChangedCount >= this.maxUnchangedCount){
-					this.isLastBatchReturned = true;
+					// this.isLastBatchReturned = true;
 					let temp = this.msgs;
 					this.clear();
 					console.log("last send");
 					return temp
 				}
-			}
-			else{
+			}else{
 				const now = new Date();
 				console.log("promise: ",this.msgs.length, now.toISOString());
-				await new Promise(resolve => setTimeout(resolve, 200));
+				await new Promise(resolve => setTimeout(resolve, 500));
 				return null;
 			}
 		}

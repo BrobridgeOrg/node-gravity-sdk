@@ -15,20 +15,63 @@ module.exports = class Consumer extends events.EventEmitter {
         this.count = 0;
         this.lastMsg = null;
         this.iter = new consumerQueueIterator();
+        this.connectionClosed = true;
     }
 
-    async unsubscribe(){
+    async unsubscribe() {
         try {
+            // 關閉迭代器
             this.iter.close();
+
+            // 如果有 consumer name，刪除該 consumer
+            if (this.consumerName) {
+                try {
+                    // 檢查連接狀態
+                    if (this.connectionClosed) {
+                        console.log("Connection is closed, trying to reconnect...");
+                        await this.reinitialize();  // 重新建立連接
+                    }
+
+                    // 先確認 consumer 是否存在
+                    try {
+                        await this.jsm.consumers.info(this.streamName, this.consumerName);
+                        // 如果存在，則刪除
+                        await this.jsm.consumers.delete(this.streamName, this.consumerName);
+                        console.log(`Consumer ${this.consumerName} deleted from stream ${this.streamName}`);
+                    } catch (infoError) {
+                        console.log(`Consumer ${this.consumerName} might not exist:`, infoError.message);
+                    }
+
+                } catch (deleteError) {
+                    if (deleteError.code === 'CONNECTION_CLOSED') {
+                        console.error("Connection closed during delete operation");
+                        this.connectionClosed = true;
+                    } else {
+                        console.error("Error deleting consumer:", deleteError);
+                    }
+                    throw deleteError;
+                }
+            }
+
             await new Promise(resolve => setTimeout(resolve, 500));
             this.consumerName = "";
+
         } catch (error) {
-                console.error("Unsubscribe error:", error);
+            console.error("Unsubscribe error:", error);
+            throw error;
         }
     }
 
     async fetch(batch, expires) {
+        let maxtries = 3;
         try {
+            if (!this.consumerName || this.connectionClosed) {
+                await this.reinitialize();
+                if (!this.consumerName) {
+                    throw new Error("Consumer initialization failed");
+                }
+            }
+
             const startTime = Date.now();
             let lastMsg = null;
             let processedCount = 0;
@@ -67,6 +110,20 @@ module.exports = class Consumer extends events.EventEmitter {
             console.log(`Fetch complete: ${processedCount} messages in ${processingTime}ms`);
 
         } catch (error) {
+            if (error instanceof Error &&(error.code === 'CONNECTION_CLOSED' ||error.message.includes('CONNECTION_CLOSED'))) {
+                while(maxtries > 0){
+                    this.connectionClosed = true;
+                    console.log("Connection closed, trying to reinitialize...");
+                    try {
+                        await this.reinitialize();
+                        maxtries--;
+                        return this.fetch(batch, expires);
+                    } catch (reinitializeError) {
+                        console.log("reInitialize error:",reinitializeError);
+                    }
+                }
+
+            }
             console.error("Fetch error:", error);
             throw error;
         }
@@ -84,18 +141,38 @@ module.exports = class Consumer extends events.EventEmitter {
 
 
     async initialize(){
-        try {
-            if(this.consumerName){
-                await this.unsubscribe();
-            }
+        let retries = 3;
+        let error;
 
-            await new Promise(resolve=>setTimeout(resolve,1000));
-            let ci = await this.jsm.consumers.add(this.streamName,this.cOpts);
-            this.consumerName = ci.name;
-        } catch (error) {
-            console.log("failed to initialize consumer: ",error);
-            return error;
+        while (retries > 0) {
+            try {
+                let ci = await this.jsm.consumers.add(this.streamName, this.cOpts);
+                this.consumerName = ci.name;
+                this.connectionClosed = false;
+                return;
+            } catch (err) {
+                error = err;
+                if (err.code === 'CONNECTION_CLOSED') {
+                    console.log(`Connection attempt failed, retries left: ${retries}`);
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    retries--;
+                } else {
+                    throw err;
+                }
+            }
         }
+
+        throw error || new Error("Failed to initialize after retries");
+    }
+
+    async reinitialize() {
+        // 先清理舊的 consumer
+        if(this.consumerName) {
+            await this.unsubscribe();
+        }
+
+        // 重新創建 consumer
+        await this.initialize();
     }
 
     async getStream(){
