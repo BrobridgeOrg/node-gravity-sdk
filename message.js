@@ -22,8 +22,23 @@ module.exports = class Message extends events.EventEmitter {
 			return;
 
 		this.msg.ack();
-
+		// this.retry = false;
+		if (this.channel){
+			this.channel.disabledRetry();
+		}
 		this.emit('ack');
+	}
+
+	nak(){
+		if (!this.msg)
+			return;
+
+		// this.msg.nak();
+		// this.retry = true;
+		if (this.channel){
+			this.channel.enabledRetry();
+		}
+		this.emit('nak');
 	}
 
 	keepalive() {
@@ -46,6 +61,7 @@ module.exports = class Message extends events.EventEmitter {
 			}
 
 			this.once('ack', resolve);
+			this.once('nak', resolve);
 		})
 	}
 };

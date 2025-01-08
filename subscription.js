@@ -48,9 +48,11 @@ module.exports = class Subscription extends events.EventEmitter {
 		let cOpts = {
 			"ack_policy":nats.AckPolicy.All,
 			"max_ack_pending":2000,
-			"max_deliver": 5,
+			// "max_deliver": 5,
 			"filter_subject":subject,
-			"replay_policy": 'original'
+			"ack_wait": 30000,
+			"max_deliver": 1, 
+			"replay_policy": 'instant'
 		};
 		//cOpts.deliverTo(nats.createInbox());
 		switch(opts.delivery) {
@@ -82,6 +84,7 @@ module.exports = class Subscription extends events.EventEmitter {
 		await consumer.initialize();
 
 		this.batchSize = opts.batchSize;
+		this.batchMode = opts.batchMode;
 		// Preparing channel
 		return new Channel(this, consumer);
 	}
@@ -119,7 +122,7 @@ module.exports = class Subscription extends events.EventEmitter {
 								await m[m.length-1].wait();
 							}
 						}else{
-							console.log("No data available, waiting for new batch data...");
+							// console.log("No data available, waiting for new batch data...");
 						}
 					}
 				} catch(error) {

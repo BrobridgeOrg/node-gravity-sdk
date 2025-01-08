@@ -15,13 +15,17 @@ module.exports = class Channel extends events.EventEmitter {
 		this.msgs = [];
 		this.cursor = -1;
 		this.wipTimer = null;
-		this.batchMode = true;
+		this.batchMode = sub.batchMode;
 		this.eventCount = 0;
 		this.isLastBatchReturned = false;
 		this.lastBufferSize = 0;
 		this.unChangedCount = 0;
-		this.maxUnchangedCount = 3;
+		this.maxUnchangedCount = 10;
 		this.batchSize = Number(sub.batchSize);
+		this.count = 0;
+		this.empty=0;
+		this.elseCnt = 0;
+		this.retry = false;
 	}
 
 	next() {
@@ -76,8 +80,19 @@ module.exports = class Channel extends events.EventEmitter {
 		this.consumer.unsubscribe();
 	}
 
-	async pull(batch = 2000, expires = MsgExpire) {
-		this.consumer.fetch(batch,expires,this);
+	enabledRetry(){
+		this.retry = true;
+	}
+
+	disabledRetry(){
+		this.retry = false;
+	}
+
+	async pull(batch = 1000, expires = MsgExpire) {
+		// if(!this.batchMode){
+		// 	batch = 1;
+		// }
+		this.consumer.fetch(batch,expires);
 	}
 
 	async fetch() {
@@ -94,7 +109,7 @@ module.exports = class Channel extends events.EventEmitter {
 	}
 
 	async batchFetch() {
-		this.batchMode = true;
+		console.log("batchSize:",this.batchSize,"msgsLength:",this.msgs.length);
 		if(!this.closed) {
 			if (this.msgs.length >= this.batchSize){
 				if (this.cursor < 0){
@@ -106,8 +121,11 @@ module.exports = class Channel extends events.EventEmitter {
 				let temp = this.msgs.slice(0,this.batchSize);
 				this.msgs = this.msgs.slice(this.batchSize);
 				this.isLastBatchReturned = false;
+				console.log("send and msgs length:",this.msgs.length);
+				console.log("call send and isLastBatchReturned and length :",this.isLastBatchReturned,this.msgs.length);
 				return temp;
-			}else if (this.msgs.length > 0 && this.msgs.length <  this.batchSize && !this.isLastBatchReturned){
+			}
+			else if (this.msgs.length > 0 && this.msgs.length <  this.batchSize && !this.isLastBatchReturned){
 				if (this.msgs.length == this.lastBufferSize){
 					this.unChangedCount++;
 				}else{
@@ -120,33 +138,40 @@ module.exports = class Channel extends events.EventEmitter {
 					this.isLastBatchReturned = true;
 					let temp = this.msgs;
 					this.clear();
+					console.log("last send");
 					return temp
 				}
-
-				let temp = this.msgs;
-				this.clear();
-				return temp;
-			}else{
+			}
+			else{
+				const now = new Date();
+				console.log("promise: ",this.msgs.length, now.toISOString());
 				await new Promise(resolve => setTimeout(resolve, 200));
 				return null;
 			}
 		}
-
 	}
 
 
 	async poll() {
 
 		while(!this.closed) {
-
 			if (this.msgs.length == 0) {
 				// pull new messages if no messages
-				console.log("polling...")
-				await this.pull();
+				const now = new Date();
+				console.log("polling...",now.toISOString());
+				process.stdout.write("");
+				if(this.retry){
+					console.log("resend");
+					await this.consumer.resend();
+				}else{
+					console.log("pulling");
+					this.consumer.iter.flushBackup();
+					await this.pull();
+				}
 			}
 
 			// Delay
-			await new Promise(resolve => setTimeout(resolve, 200));
+			await new Promise(resolve => setTimeout(resolve, 1000));
 		}
 	}
 
@@ -164,11 +189,20 @@ module.exports = class Channel extends events.EventEmitter {
 
 		try {
 			for await (const m of this.consumer.iter) {
-				if (!m) continue;  // 跳過空消息
-
+				this.count++;
+				// console.log("execute count(seq=",m.seq,")","and count:",this.count);
+				let date = new Date();
+				// console.log("execute count(seq=",m.seq,")","and count:",this.count,date.toISOString());
+				// console.log(`execute count(seq=%d):%d,m.seq,`);
+				if (!m) {
+					this.empty++;
+					console.log("empty message:",this.empty);
+					continue;  // 跳過空消息
+				}
 				let message = this.getMessage(m.seq);
 				if (message == null) {
 					lastMsg = m;
+
 					// Create a new message
 					message = new Message();
 					message.subscription = this.sub;
@@ -191,25 +225,20 @@ module.exports = class Channel extends events.EventEmitter {
 
 					// Push message to the list
 					this.msgs.push(message);
-
-					this.eventCount = this.sub.product.states.eventCount;
 					continue;
+
+				}else{
+					this.elseCnt++;
+					console.log("else count:",this.elseCnt);
 				}
 
 				// Update internal instance
 				message.msg = m;
-
-			}
-
-			if (lastMsg && this.batchMode) {
-				// for the last message acka all
-				await lastMsg.ack();
+				// this.msgs.push(message);
 			}
 
 		} catch (error) {
 			console.error("Error processing messages:", error);
-			await lastMsg.nak(1000);
 		}
-
 	}
 }

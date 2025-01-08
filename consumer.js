@@ -1,6 +1,7 @@
 const events = require('events');
 const util = require('util');
 const nats = require('nats');
+const consumerQueueIterator = require('./consumer-queue-iterator');
 module.exports = class Consumer extends events.EventEmitter {
 
     constructor(js,jsm,cOpts={},stream){
@@ -13,7 +14,7 @@ module.exports = class Consumer extends events.EventEmitter {
         this.consumerName = "";
         this.count = 0;
         this.lastMsg = null;
-        this.iter = new CosumerQueuedIteratorImpl();
+        this.iter = new consumerQueueIterator();
     }
 
     async unsubscribe(){
@@ -28,40 +29,59 @@ module.exports = class Consumer extends events.EventEmitter {
 
     async fetch(batch, expires) {
         try {
-
-            await new Promise((resolve) => setTimeout(resolve, 500));
-
-            if (!this.consumerName) {
-                throw new Error("Consumer not initialized");
-            }
+            const startTime = Date.now();
+            let lastMsg = null;
+            let processedCount = 0;
+            const processedSeqs = new Map();  // 使用 Map 來追蹤每個序號的處理時間
 
             let jsFetch = await this.js.fetch(this.streamName, this.consumerName, {
                 batch: batch,
                 expires: expires
             });
 
-            try {
-                for await (const msg of jsFetch) {
-                    this.iter.push(msg);
+            for await (const msg of jsFetch) {
+                const now = Date.now();
+                // duplicate data check
+                if (processedSeqs.has(msg.seq)) {
+                    const timeDiff = now - processedSeqs.get(msg.seq);
+                    console.log(`Duplicate seq: ${msg.seq}, time since first appearance: ${timeDiff}ms`);
+                    continue;
                 }
-            } catch (fetchError) {
-                // no return when getting connection closed
-                if (fetchError.code === 'CONNECTION_CLOSED') {
-                    console.log("Connection closed during message processing");
-                    return;
-                }
-                throw fetchError;
+
+                processedSeqs.set(msg.seq, now);
+                console.log(`Processing seq: ${msg.seq}, fetch progress: ${processedCount + 1}/${batch}`);
+
+                this.iter.push(msg);
+                this.iter.addBackup(msg);
+                processedCount++;
+                lastMsg = msg;
             }
+
+            // if (lastMsg && processedCount % 100 !== 0) {
+            //     await lastMsg.ack();
+            //     console.log("final ack");
+            // }
+
+
+            const processingTime = Date.now() - startTime;
+            console.log(`Fetch complete: ${processedCount} messages in ${processingTime}ms`);
+
         } catch (error) {
-            // no return when getting connection closed
-            if (error.code === 'CONNECTION_CLOSED') {
-                console.log("Connection closed before fetch");
-                return;
-            }
-            console.error("fetch error:", error);
+            console.error("Fetch error:", error);
             throw error;
         }
     }
+
+    async resend(){
+        try {
+            this.iter.backup.forEach(value => this.iter.push(value));
+        } catch (error) {
+            console.error("Resend error:", error);
+            throw error;
+        }
+    }
+
+
 
     async initialize(){
         try {
@@ -88,84 +108,4 @@ module.exports = class Consumer extends events.EventEmitter {
         }
     }
 
-}
-
-class CosumerQueuedIteratorImpl {
-    constructor() {
-        // self-handled data queue
-        this.queue = [];
-        this.resolvers = [];
-        this.done = false;
-        this.error = null;
-        this.processed = 0;
-        this.received = 0;
-        this.pending = 0;
-    }
-
-    [Symbol.asyncIterator]() {
-        return {
-            next: () => this.next()
-        };
-    }
-
-    async next() {
-        try {
-            // if there a message in queue，just return
-            if (this.queue.length > 0) {
-                this.processed++;
-                return {
-                    value: this.queue.shift(),
-                    done: false
-                };
-            }
-
-            // if it end, return done
-            if (this.done) {
-                return { value: undefined, done: true };
-            }
-
-            // if there's no message, just pass a resolve to make producer consume
-            return new Promise((resolve) => {
-                this.resolvers.push({resolve});
-            });
-
-        } catch (err) {
-            this.error = err;
-            throw err;
-        }
-    }
-
-    push(msg) {
-        if (this.done) {
-            throw new Error("Iterator is closed");
-        }
-
-        this.received++;
-        this.pending++;
-
-        if (this.resolvers.length > 0) {
-            // if there's a waitting resolver, just pass it by the resolver
-            const { resolve } = this.resolvers.shift();
-            this.processed++;
-            this.pending--;
-            resolve({ value: msg, done: false });
-        } else {
-            // or push into the  queue
-            this.queue.push(msg);
-        }
-    }
-
-    close() {
-        this.done = true;
-        // solve all waitting promise
-        while (this.resolvers.length > 0) {
-            const { resolve } = this.resolvers.shift();
-            resolve({ value: undefined, done: true });
-        }
-    }
-
-    // get information of the iterator
-    getProcessed() { return this.processed; }
-    getPending() { return this.pending; }
-    getReceived() { return this.received; }
 }
