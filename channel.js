@@ -38,7 +38,14 @@ module.exports = class Channel extends events.EventEmitter {
 			return null;
 		}
 
-		this.cursor++;
+		if (!this.batchMode && this.retry){
+			// for single data resend
+			if(this.cursor < 0){
+				this.cursor = 0;
+			}
+		}else{
+			this.cursor++;
+		}
 
 		return this.msgs[this.cursor];
 	}
