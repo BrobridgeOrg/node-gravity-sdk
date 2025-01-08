@@ -116,14 +116,14 @@ module.exports = class Channel extends events.EventEmitter {
 	}
 
 	async batchFetch() {
-		console.log("batchSize:",this.batchSize,"msgsLength:",this.msgs.length);
+		// console.log("batchSize:",this.batchSize,"msgsLength:",this.msgs.length);
 		if(!this.closed) {
 			if (this.msgs.length >= this.batchSize){
 				// let temp = this.msgs.slice(this.cursor,Math.min(nextCursor, this.msgs.length));
 				let temp = this.msgs.slice(0,this.batchSize);
 				this.msgs = this.msgs.slice(this.batchSize);
 				// this.isLastBatchReturned = false;
-				console.log(`Sending full batch (${temp.length} messages)`);
+				// console.log(`Sending full batch (${temp.length} messages)`);
 				return temp;
 			}else if (this.msgs.length > 0 && this.msgs.length <  this.batchSize){
 				if (this.msgs.length == this.lastBufferSize){
@@ -138,12 +138,12 @@ module.exports = class Channel extends events.EventEmitter {
 					// this.isLastBatchReturned = true;
 					let temp = this.msgs;
 					this.clear();
-					console.log("last send");
+					// console.log("last send");
 					return temp
 				}
 			}else{
 				const now = new Date();
-				console.log("promise: ",this.msgs.length, now.toISOString());
+				// console.log("promise: ",this.msgs.length, now.toISOString());
 				await new Promise(resolve => setTimeout(resolve, 500));
 				return null;
 			}
@@ -156,14 +156,14 @@ module.exports = class Channel extends events.EventEmitter {
 		while(!this.closed) {
 			if (this.msgs.length == 0) {
 				// pull new messages if no messages
-				const now = new Date();
-				console.log("polling...",now.toISOString());
-				process.stdout.write("");
+				// const now = new Date();
+				// console.log("polling...",now.toISOString());
+				// process.stdout.write("");
 				if(this.retry){
-					console.log("resend");
+					// console.log("resend");
 					await this.consumer.resend();
 				}else{
-					console.log("pulling");
+					// console.log("pulling");
 					this.consumer.iter.flushBackup();
 					await this.pull();
 				}
@@ -188,14 +188,8 @@ module.exports = class Channel extends events.EventEmitter {
 
 		try {
 			for await (const m of this.consumer.iter) {
-				this.count++;
-				// console.log("execute count(seq=",m.seq,")","and count:",this.count);
-				let date = new Date();
-				// console.log("execute count(seq=",m.seq,")","and count:",this.count,date.toISOString());
-				// console.log(`execute count(seq=%d):%d,m.seq,`);
 				if (!m) {
-					this.empty++;
-					console.log("empty message:",this.empty);
+					// console.log("empty message:",this.empty);
 					continue;  // 跳過空消息
 				}
 				let message = this.getMessage(m.seq);
@@ -226,9 +220,6 @@ module.exports = class Channel extends events.EventEmitter {
 					this.msgs.push(message);
 					continue;
 
-				}else{
-					this.elseCnt++;
-					console.log("else count:",this.elseCnt);
 				}
 
 				// Update internal instance

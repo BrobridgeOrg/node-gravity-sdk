@@ -20,19 +20,15 @@ module.exports = class Consumer extends events.EventEmitter {
 
     async unsubscribe() {
         try {
-            // 關閉迭代器
             this.iter.close();
 
-            // 如果有 consumer name，刪除該 consumer
             if (this.consumerName) {
                 try {
-                    // 檢查連接狀態
                     if (this.connectionClosed) {
                         console.log("Connection is closed, trying to reconnect...");
                         await this.reinitialize();  // 重新建立連接
                     }
 
-                    // 先確認 consumer 是否存在
                     try {
                         await this.jsm.consumers.info(this.streamName, this.consumerName);
                         // 如果存在，則刪除
@@ -87,12 +83,12 @@ module.exports = class Consumer extends events.EventEmitter {
                 // duplicate data check
                 if (processedSeqs.has(msg.seq)) {
                     const timeDiff = now - processedSeqs.get(msg.seq);
-                    console.log(`Duplicate seq: ${msg.seq}, time since first appearance: ${timeDiff}ms`);
+                    // console.log(`Duplicate seq: ${msg.seq}, time since first appearance: ${timeDiff}ms`);
                     continue;
                 }
 
                 processedSeqs.set(msg.seq, now);
-                console.log(`Processing seq: ${msg.seq}, fetch progress: ${processedCount + 1}/${batch}`);
+                // console.log(`Processing seq: ${msg.seq}, fetch progress: ${processedCount + 1}/${batch}`);
 
                 this.iter.push(msg);
                 this.iter.addBackup(msg);
@@ -107,7 +103,7 @@ module.exports = class Consumer extends events.EventEmitter {
 
 
             const processingTime = Date.now() - startTime;
-            console.log(`Fetch complete: ${processedCount} messages in ${processingTime}ms`);
+            // console.log(`Fetch complete: ${processedCount} messages in ${processingTime}ms`);
 
         } catch (error) {
             if (error instanceof Error &&(error.code === 'CONNECTION_CLOSED' ||error.message.includes('CONNECTION_CLOSED'))) {
