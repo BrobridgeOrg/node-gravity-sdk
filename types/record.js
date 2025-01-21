@@ -97,7 +97,7 @@ function getValueObject(value) {
 		return buf.readDoubleBE(0);
 	}
 	case Types.gravity.sdk.types.record.DataType.BOOLEAN:
-		return value.value[0] ? true : false;
+		return value.value[3] ? true : false;
 	case Types.gravity.sdk.types.record.DataType.TIME:
 	{
 		let d = new Date(value.timestamp.seconds.toNumber() * 1000);
