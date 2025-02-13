@@ -1,6 +1,6 @@
 {
   "name": "gravity-sdk",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "description": "Gravity SDK binding for Node.js",
   "main": "index.js",
   "scripts": {
